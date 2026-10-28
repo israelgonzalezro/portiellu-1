@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { findApartment } from "../../../lib/apartments";
 import { isRangeFree } from "../../../lib/availability";
 import { isISODate, todayInSpain } from "../../../lib/dates";
-import { newBookingId, saveBooking } from "../../../lib/store";
+import { notifyNewRequest } from "../../../lib/notify";
+import { stayTotal } from "../../../lib/pricing";
+import { getPriceRules } from "../../../lib/prices-store";
+import { newBookingId, saveBooking, type Booking } from "../../../lib/store";
 
 type ReservaPayload = {
   nombre?: string;
@@ -216,22 +219,24 @@ export async function POST(request: Request) {
     );
   }
 
-  const bookingId = newBookingId();
+  const booking: Booking = {
+    id: newBookingId(),
+    apt: apt.id,
+    start: reserva.fechaEntrada,
+    end: reserva.fechaSalida,
+    status: "pendiente",
+    nombre: reserva.nombre,
+    email: reserva.email,
+    telefono: reserva.telefono,
+    huespedes: huespedesNum,
+    mensaje: reserva.mensaje || undefined,
+    lang: data.lang === "en" ? "en" : "es",
+    total: stayTotal(await getPriceRules(), apt.id, reserva.fechaEntrada, reserva.fechaSalida) ?? undefined,
+    createdAt: reserva.createdAt
+  };
+
   try {
-    await saveBooking({
-      id: bookingId,
-      apt: apt.id,
-      start: reserva.fechaEntrada,
-      end: reserva.fechaSalida,
-      status: "pendiente",
-      nombre: reserva.nombre,
-      email: reserva.email,
-      telefono: reserva.telefono,
-      huespedes: huespedesNum,
-      mensaje: reserva.mensaje || undefined,
-      lang: data.lang === "en" ? "en" : "es",
-      createdAt: reserva.createdAt
-    });
+    await saveBooking(booking);
   } catch (error) {
     console.error("Error guardando la solicitud:", error);
     return NextResponse.json(
@@ -240,68 +245,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const recipientEmail = process.env.RESERVAS_EMAIL ?? "apartamentoselportiellu@gmail.com";
-  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
-  const requestOrigin =
-    request.headers.get("origin") ?? (host ? `https://${host}` : "https://elportiellu.com");
-  const requestReferer = request.headers.get("referer") ?? requestOrigin;
-
-  const payload = {
-    name: "Web El Portiellu",
-    email: "reservas@elportiellu.com",
-    _subject: `Nueva solicitud: ${apt.name} del ${reserva.fechaEntrada} al ${reserva.fechaSalida}`,
-    message: [
-      `Apartamento: ${apt.name}`,
-      `Nombre: ${reserva.nombre}`,
-      `Email: ${reserva.email}`,
-      `Teléfono: ${reserva.telefono}`,
-      `Entrada: ${reserva.fechaEntrada}`,
-      `Salida: ${reserva.fechaSalida}`,
-      `Huéspedes: ${huespedesNum}`,
-      `Mensaje: ${reserva.mensaje || "-"}`,
-      `Fecha envio: ${reserva.createdAt}`,
-      `IP: ${ip}`,
-      "",
-      `Confirmar o rechazar: ${requestOrigin}/admin`
-    ].join("\n"),
-    _captcha: "false",
-    _template: "table",
-    _replyto: reserva.email
-  };
-
-  try {
-    const formPayload = new URLSearchParams();
-    for (const [key, value] of Object.entries(payload)) {
-      formPayload.append(key, value);
-    }
-
-    const relayResponse = await fetch(
-      `https://formsubmit.co/${encodeURIComponent(recipientEmail)}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          Origin: requestOrigin,
-          Referer: requestReferer
-        },
-        body: formPayload.toString()
-      }
-    );
-
-    if (!relayResponse.ok) {
-      const responseText = await relayResponse.text().catch(() => "");
-      console.error("Error enviando solicitud por relay:", {
-        status: relayResponse.status,
-        statusText: relayResponse.statusText,
-        bodyPreview: responseText.slice(0, 240),
-        bookingId
-      });
-    }
-  } catch (error) {
-    // La solicitud ya está guardada y aparece en /admin aunque falle el aviso por email.
-    console.error("Error de red enviando aviso por email:", error, { bookingId });
-  }
+  // La solicitud ya está guardada y aparece en /admin aunque falle el aviso por email.
+  const sent = await notifyNewRequest(booking, apt);
+  await saveBooking({ ...booking, aviso: sent ? "enviado" : "fallido" }).catch((error) =>
+    console.error("Error guardando el estado del aviso:", error)
+  );
 
   return NextResponse.json({
     message: "Solicitud recibida correctamente. Te contactaremos en menos de 24 horas."

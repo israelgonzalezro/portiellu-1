@@ -7,6 +7,7 @@ import AvailabilityCalendar, {
   type CalendarSelection
 } from "./AvailabilityCalendar";
 import { formatDate } from "../lib/dates";
+import { formatEuros, stayTotal, type PriceRules } from "../lib/pricing";
 
 type FormState = {
   nombre: string;
@@ -25,6 +26,7 @@ type ReservaFormProps = {
 type AvailabilityData = {
   today: string;
   apartments: CalendarApartment[];
+  prices?: PriceRules;
 };
 
 const initialState: FormState = {
@@ -70,6 +72,10 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
     checkOut: isEn ? "Check-out" : "Salida",
     nights: (n: number) => (isEn ? `${n} night${n === 1 ? "" : "s"}` : `${n} noche${n === 1 ? "" : "s"}`),
     change: isEn ? "Clear" : "Borrar",
+    total: isEn ? "Estimated price" : "Precio estimado",
+    priceNote: isEn
+      ? "Prices per night in euros. We confirm the final price when we reply."
+      : "Precios por noche en euros. Te confirmamos el precio final al responder.",
     fullName: isEn ? "Full name" : "Nombre completo",
     email: isEn ? "Email address" : "Correo electrónico",
     phone: isEn ? "Phone" : "Teléfono",
@@ -102,6 +108,10 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
   const selectedApt = availability?.apartments.find((apt) => apt.id === selection?.apt);
   const maxGuests = selectedApt?.capacity ?? 5;
   const nights = countNights(selection);
+  const total =
+    selection?.end && availability
+      ? stayTotal(availability.prices, selection.apt, selection.start, selection.end)
+      : null;
 
   function onSelect(next: CalendarSelection | null) {
     setSelection(next);
@@ -194,6 +204,7 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
           selection={selection}
           onSelect={onSelect}
           lang={lang}
+          prices={availability.prices}
         />
       ) : (
         <p className="cal-status">{availabilityError ? t.calendarError : t.loadingCalendar}</p>
@@ -213,6 +224,12 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
                 </>
               ) : null}
             </span>
+            {total ? (
+              <span className="stay-total">
+                {t.total}: <strong>{formatEuros(total, lang)}</strong>
+                <small>{t.priceNote}</small>
+              </span>
+            ) : null}
           </div>
           <button type="button" className="link-button" onClick={() => onSelect(null)}>
             {t.change}

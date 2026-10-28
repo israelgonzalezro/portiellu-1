@@ -5,6 +5,8 @@ import { listBookings, type Booking } from "./store";
 
 const CACHE_MS = 5 * 60 * 1000;
 const DAYS_AHEAD = 365;
+// Booking exporta igual reservas y cierres; tratamos los tramos largos como cierres.
+const LONG_CLOSURE_NIGHTS = 28;
 
 type CacheEntry = { at: number; events: CalendarEvent[] };
 const bookingCache = new Map<string, CacheEntry>();
@@ -43,7 +45,10 @@ export function blocksDates(booking: Booking) {
 
 export type ApartmentAvailability = {
   id: string;
+  // Noches reservadas (rojo)
   busy: Set<string>;
+  // Noches cerradas o bloqueadas (amarillo)
+  closed: Set<string>;
   synced: boolean;
 };
 
@@ -58,18 +63,28 @@ export async function getAvailability(options: { excludeId?: string } = {}) {
     apartments.map(async (apt): Promise<ApartmentAvailability> => {
       const { events, synced } = await fetchBookingEvents(apt);
       const busy = new Set<string>();
+      const closed = new Set<string>();
       const ranges = [
-        ...events,
-        ...localBookings.filter((booking) => booking.apt === apt.id)
+        ...events.map((event) => ({
+          ...event,
+          closure: nightsBetween(event.start, event.end).length >= LONG_CLOSURE_NIGHTS
+        })),
+        ...localBookings
+          .filter((booking) => booking.apt === apt.id)
+          .map((booking) => ({ ...booking, closure: booking.status === "bloqueo" }))
       ];
 
       for (const range of ranges) {
         const start = range.start < today ? today : range.start;
         const end = range.end > until ? until : range.end;
-        for (const night of nightsBetween(start, end)) busy.add(night);
+        for (const night of nightsBetween(start, end)) {
+          (range.closure ? closed : busy).add(night);
+        }
       }
+      // Si una noche está reservada y cerrada a la vez, se muestra como reservada.
+      for (const night of busy) closed.delete(night);
 
-      return { id: apt.id, busy, synced };
+      return { id: apt.id, busy, closed, synced };
     })
   );
 }
@@ -83,5 +98,5 @@ export async function isRangeFree(
   const availability = await getAvailability(options);
   const apt = availability.find((item) => item.id === aptId);
   if (!apt) return false;
-  return nightsBetween(start, end).every((night) => !apt.busy.has(night));
+  return nightsBetween(start, end).every((night) => !apt.busy.has(night) && !apt.closed.has(night));
 }

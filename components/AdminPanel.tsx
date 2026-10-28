@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import AvailabilityCalendar, { type CalendarApartment } from "./AvailabilityCalendar";
 import { formatDate, nightsBetween } from "../lib/dates";
+import { formatEuros, type PriceRules } from "../lib/pricing";
 
 type AdminBooking = {
   id: string;
@@ -17,10 +18,12 @@ type AdminBooking = {
   mensaje?: string;
   nota?: string;
   createdAt: string;
+  total?: number;
+  aviso?: "enviado" | "fallido";
   conflict?: boolean;
 };
 
-type Availability = { today: string; apartments: CalendarApartment[] };
+type Availability = { today: string; apartments: CalendarApartment[]; prices?: PriceRules };
 
 export default function AdminPanel() {
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -31,6 +34,8 @@ export default function AdminPanel() {
   const [busy, setBusy] = useState(false);
   const [block, setBlock] = useState({ apt: "el-portiellu", start: "", end: "", nota: "" });
   const [origin, setOrigin] = useState("");
+  const [prices, setPrices] = useState<PriceRules | null>(null);
+  const [highlight, setHighlight] = useState("");
 
   const load = useCallback(async () => {
     const response = await fetch("/api/admin/reservas", { cache: "no-store" });
@@ -41,9 +46,24 @@ export default function AdminPanel() {
     const data = (await response.json()) as { bookings: AdminBooking[] };
     setBookings(data.bookings);
     setAuthed(true);
-    const availabilityResponse = await fetch("/api/disponibilidad", { cache: "no-store" });
+    const [availabilityResponse, pricesResponse] = await Promise.all([
+      fetch("/api/disponibilidad", { cache: "no-store" }),
+      fetch("/api/admin/precios", { cache: "no-store" })
+    ]);
     if (availabilityResponse.ok) setAvailability((await availabilityResponse.json()) as Availability);
+    if (pricesResponse.ok) setPrices((await pricesResponse.json()) as PriceRules);
   }, []);
+
+  // El enlace del email lleva a /admin#solicitud-<id>: resaltamos y vamos a esa solicitud.
+  useEffect(() => {
+    if (!authed || !bookings.length) return;
+    const id = window.location.hash.replace("#solicitud-", "");
+    if (!id || id === window.location.hash) return;
+    setHighlight(id);
+    window.setTimeout(() => {
+      document.getElementById(`solicitud-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  }, [authed, bookings]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -96,6 +116,25 @@ export default function AdminPanel() {
       return;
     }
     setMessage({ text: success });
+    load();
+  }
+
+  async function savePrices(next: PriceRules) {
+    setBusy(true);
+    setMessage(null);
+    const response = await fetch("/api/admin/precios", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next)
+    });
+    const data = (await response.json().catch(() => ({}))) as PriceRules & { message?: string };
+    setBusy(false);
+    if (!response.ok) {
+      setMessage({ text: data.message ?? "No se pudieron guardar los precios.", error: true });
+      return;
+    }
+    setPrices(data);
+    setMessage({ text: "Precios guardados. Ya se ven en la web." });
     load();
   }
 
@@ -157,7 +196,12 @@ export default function AdminPanel() {
           </p>
         ) : null}
         {availability ? (
-          <AvailabilityCalendar today={availability.today} apartments={availability.apartments} days={120} />
+          <AvailabilityCalendar
+            today={availability.today}
+            apartments={availability.apartments}
+            prices={availability.prices}
+            days={180}
+          />
         ) : null}
       </section>
 
@@ -166,14 +210,21 @@ export default function AdminPanel() {
         {pending.length === 0 ? <p>No hay solicitudes pendientes.</p> : null}
         <div className="admin-list">
           {pending.map((b) => (
-            <article key={b.id} className={`admin-card${b.conflict ? " conflict" : ""}`}>
+            <article
+              key={b.id}
+              id={`solicitud-${b.id}`}
+              className={`admin-card${b.conflict ? " conflict" : ""}${highlight === b.id ? " highlight" : ""}`}
+            >
               <header>
                 <strong>{aptName(b.apt)}</strong>
                 <span>
                   {formatDate(b.start)} → {formatDate(b.end)} · {nightsBetween(b.start, b.end).length} noches ·{" "}
-                  {b.huespedes} huéspedes
+                  {b.huespedes} huéspedes{b.total ? ` · ${formatEuros(b.total)}` : ""}
                 </span>
               </header>
+              {b.aviso === "fallido" ? (
+                <p className="admin-note">No se pudo enviar el email de aviso de esta solicitud.</p>
+              ) : null}
               {b.conflict ? <p className="feedback error">⚠ Estas fechas ya están ocupadas.</p> : null}
               <p>
                 {b.nombre} · <a href={`tel:${b.telefono}`}>{b.telefono}</a> ·{" "}
@@ -201,6 +252,16 @@ export default function AdminPanel() {
           ))}
         </div>
       </section>
+
+      {prices && availability ? (
+        <PriceEditor
+          key={JSON.stringify(prices)}
+          initial={prices}
+          apartments={availability.apartments}
+          busy={busy}
+          onSave={savePrices}
+        />
+      ) : null}
 
       <section className="section form-wrap">
         <h2>Bloquear fechas</h2>
@@ -249,10 +310,14 @@ export default function AdminPanel() {
         {active.length === 0 ? <p>No hay reservas web ni bloqueos próximos.</p> : null}
         <div className="admin-list">
           {active.map((b) => (
-            <article key={b.id} className="admin-card">
+            <article
+              key={b.id}
+              id={`solicitud-${b.id}`}
+              className={`admin-card${highlight === b.id ? " highlight" : ""}`}
+            >
               <header>
                 <strong>
-                  {aptName(b.apt)} · {b.status === "bloqueo" ? "Bloqueo" : "Reserva web"}
+                  {aptName(b.apt)} · {b.status === "bloqueo" ? "Bloqueo" : "Reserva web confirmada"}
                 </strong>
                 <span>
                   {formatDate(b.start)} → {formatDate(b.end)}
@@ -315,5 +380,134 @@ export default function AdminPanel() {
         </div>
       </section>
     </div>
+  );
+}
+
+type PriceEditorProps = {
+  initial: PriceRules;
+  apartments: CalendarApartment[];
+  busy: boolean;
+  onSave: (rules: PriceRules) => void;
+};
+
+function PriceEditor({ initial, apartments, busy, onSave }: PriceEditorProps) {
+  const [rules, setRules] = useState<PriceRules>(initial);
+
+  function setBase(aptId: string, value: string) {
+    setRules((prev) => ({ ...prev, base: { ...prev.base, [aptId]: Number(value) || 0 } }));
+  }
+
+  function updateSeason(index: number, patch: Partial<PriceRules["seasons"][number]>) {
+    setRules((prev) => ({
+      ...prev,
+      seasons: prev.seasons.map((season, i) => (i === index ? { ...season, ...patch } : season))
+    }));
+  }
+
+  function addSeason() {
+    setRules((prev) => ({
+      ...prev,
+      seasons: [...prev.seasons, { id: "", name: "", start: "", end: "", prices: {} }]
+    }));
+  }
+
+  function removeSeason(index: number) {
+    setRules((prev) => ({ ...prev, seasons: prev.seasons.filter((_, i) => i !== index) }));
+  }
+
+  return (
+    <section className="section form-wrap">
+      <h2>Precios por noche</h2>
+      <p>
+        El precio base se aplica todo el año. Las temporadas lo sustituyen en sus fechas (si dos se solapan, manda
+        la de más abajo). Deja un precio vacío para no mostrarlo.
+      </p>
+      <form
+        className="reserva-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSave(rules);
+        }}
+      >
+        <h3 className="admin-sub">Precio base</h3>
+        <div className="grid">
+          {apartments.map((apt) => (
+            <label key={apt.id}>
+              {apt.name} (€/noche)
+              <input
+                type="number"
+                min={0}
+                inputMode="numeric"
+                value={rules.base[apt.id] || ""}
+                onChange={(e) => setBase(apt.id, e.target.value)}
+              />
+            </label>
+          ))}
+        </div>
+
+        <h3 className="admin-sub">Temporadas</h3>
+        {rules.seasons.length === 0 ? <p>No hay temporadas. Añade una para Semana Santa, verano, puentes…</p> : null}
+        {rules.seasons.map((season, index) => (
+          <div key={index} className="admin-season">
+            <div className="grid">
+              <label>
+                Nombre
+                <input
+                  value={season.name}
+                  placeholder="Verano"
+                  onChange={(e) => updateSeason(index, { name: e.target.value })}
+                />
+              </label>
+              <label>
+                Desde (primera noche)
+                <input
+                  type="date"
+                  required
+                  value={season.start}
+                  onChange={(e) => updateSeason(index, { start: e.target.value })}
+                />
+              </label>
+              <label>
+                Hasta (última noche)
+                <input
+                  type="date"
+                  required
+                  value={season.end}
+                  onChange={(e) => updateSeason(index, { end: e.target.value })}
+                />
+              </label>
+            </div>
+            <div className="grid">
+              {apartments.map((apt) => (
+                <label key={apt.id}>
+                  {apt.name} (€/noche)
+                  <input
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    value={season.prices[apt.id] || ""}
+                    onChange={(e) =>
+                      updateSeason(index, { prices: { ...season.prices, [apt.id]: Number(e.target.value) || 0 } })
+                    }
+                  />
+                </label>
+              ))}
+            </div>
+            <button type="button" className="secondary" onClick={() => removeSeason(index)}>
+              Quitar temporada
+            </button>
+          </div>
+        ))}
+
+        <div className="admin-actions">
+          <button type="button" className="secondary" onClick={addSeason}>
+            Añadir temporada
+          </button>
+          <button type="submit" disabled={busy}>
+            Guardar precios
+          </button>
+        </div>
+      </form>
+    </section>
   );
 }

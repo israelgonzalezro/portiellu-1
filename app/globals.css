@@ -749,6 +749,11 @@ button:disabled {
   background: var(--forest);
 }
 
+.dot.closed {
+  background: #f2c94c;
+  border: 1px solid #d4a72c;
+}
+
 .cal-nav {
   display: flex;
   gap: 0.4rem;
@@ -884,6 +889,27 @@ button:disabled {
   opacity: 1;
 }
 
+.cal-cell.closed > button,
+.cal-cell.closed > span,
+.reserva-form .cal-cell.closed > button {
+  background: #f2c94c;
+  border-color: #d4a72c;
+}
+
+.cal-price {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 32px;
+  text-align: center;
+  color: #2f5a44;
+  letter-spacing: -0.02em;
+}
+
+.reserva-form .cal-cell.picked .cal-price {
+  color: #fff;
+}
+
 .reserva-form .cal-cell.busy.can-checkout > button {
   cursor: pointer;
   background: linear-gradient(135deg, #e6f2e9 50%, #d64545 50%);
@@ -901,6 +927,14 @@ button:disabled {
 
 .reserva-form .cal-cell.busy.checkout > button {
   background: linear-gradient(135deg, var(--forest) 50%, #d64545 50%);
+}
+
+.reserva-form .cal-cell.closed.can-checkout > button {
+  background: linear-gradient(135deg, #e6f2e9 50%, #f2c94c 50%);
+}
+
+.reserva-form .cal-cell.closed.checkout > button {
+  background: linear-gradient(135deg, var(--forest) 50%, #f2c94c 50%);
 }
 
 .reserva-form .cal-cell.can-checkout:not(.busy) > button {
@@ -934,6 +968,23 @@ button:disabled {
 .stay-summary span {
   display: block;
   margin-top: 0.15rem;
+  color: var(--ink-soft);
+}
+
+.stay-summary .stay-total {
+  margin-top: 0.4rem;
+  color: var(--ink);
+}
+
+.stay-total strong {
+  display: inline;
+  font-size: 1.1rem;
+}
+
+.stay-total small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
   color: var(--ink-soft);
 }
 
@@ -1011,6 +1062,34 @@ select {
 
 .admin-card a {
   overflow-wrap: anywhere;
+}
+
+.admin-card.highlight {
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgba(31, 64, 52, 0.25);
+}
+
+.admin-note {
+  color: #9a2526;
+  font-size: 0.88rem;
+}
+
+.admin-sub {
+  margin-top: 0.4rem;
+  font-size: 1.1rem;
+}
+
+.admin-season {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  background: #fffdf8;
+}
+
+.admin .admin-season button {
+  width: fit-content;
 }
 
 .admin-msg {

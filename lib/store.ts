@@ -17,6 +17,8 @@ export type Booking = {
   mensaje?: string;
   nota?: string;
   lang?: "es" | "en";
+  total?: number;
+  aviso?: "enviado" | "fallido";
   createdAt: string;
   updatedAt?: string;
 };
@@ -32,8 +34,8 @@ function runningOnNetlify() {
   return Boolean(process.env.NETLIFY || process.env.SITE_ID || process.env.NETLIFY_BLOBS_CONTEXT);
 }
 
-function netlifyStore(): KeyValueStore {
-  const store = getStore({ name: "reservas", consistency: "strong" });
+function netlifyStore(name: string): KeyValueStore {
+  const store = getStore({ name, consistency: "strong" });
   return {
     get: (key) => store.get(key, { type: "text" }),
     set: async (key, value) => {
@@ -44,9 +46,9 @@ function netlifyStore(): KeyValueStore {
   };
 }
 
-// En local guardamos las reservas en .data/reservas (no se sube a GitHub).
-function fileStore(): KeyValueStore {
-  const dir = path.join(process.cwd(), ".data", "reservas");
+// En local guardamos los datos en .data/<nombre> (no se sube a GitHub).
+function fileStore(name: string): KeyValueStore {
+  const dir = path.join(process.cwd(), ".data", name);
   const file = (key: string) => path.join(dir, `${key.replace(/[^a-zA-Z0-9_-]/g, "_")}.json`);
   return {
     get: (key) => fs.readFile(file(key), "utf8").catch(() => null),
@@ -62,12 +64,12 @@ function fileStore(): KeyValueStore {
   };
 }
 
-function kv(): KeyValueStore {
+function kv(name = "reservas"): KeyValueStore {
   try {
-    return netlifyStore();
+    return netlifyStore(name);
   } catch (error) {
     if (runningOnNetlify()) throw error;
-    return fileStore();
+    return fileStore(name);
   }
 }
 
@@ -96,4 +98,14 @@ export async function deleteBooking(id: string) {
 
 export function newBookingId() {
   return `${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
+}
+
+// Ajustes sueltos (por ejemplo, los precios) en un almacén aparte.
+export async function getSetting<T>(key: string): Promise<T | null> {
+  const raw = await kv("ajustes").get(key);
+  return raw ? (JSON.parse(raw) as T) : null;
+}
+
+export async function saveSetting(key: string, value: unknown) {
+  await kv("ajustes").set(key, JSON.stringify(value));
 }

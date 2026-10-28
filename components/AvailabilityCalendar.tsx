@@ -2,6 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import { addDays, nightsBetween, parseISODate } from "../lib/dates";
+import { nightlyPrice, type PriceRules } from "../lib/pricing";
 
 export type CalendarApartment = {
   id: string;
@@ -12,6 +13,7 @@ export type CalendarApartment = {
   summaryEn: string;
   synced: boolean;
   busy: string[];
+  closed: string[];
 };
 
 export type CalendarSelection = {
@@ -27,6 +29,7 @@ type AvailabilityCalendarProps = {
   onSelect?: (selection: CalendarSelection | null) => void;
   lang?: "es" | "en";
   days?: number;
+  prices?: PriceRules | null;
 };
 
 const SCROLL_DAYS = 7;
@@ -37,7 +40,8 @@ export default function AvailabilityCalendar({
   selection,
   onSelect,
   lang = "es",
-  days = 365
+  days = 365,
+  prices
 }: AvailabilityCalendarProps) {
   const isEn = lang === "en";
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -48,8 +52,13 @@ export default function AvailabilityCalendar({
     [today, days]
   );
 
+  // Noches no disponibles (reservadas o cerradas) y, aparte, las cerradas para pintarlas en amarillo.
   const busyByApt = useMemo(
-    () => new Map(apartments.map((apt) => [apt.id, new Set(apt.busy)])),
+    () => new Map(apartments.map((apt) => [apt.id, new Set([...apt.busy, ...apt.closed])])),
+    [apartments]
+  );
+  const closedByApt = useMemo(
+    () => new Map(apartments.map((apt) => [apt.id, new Set(apt.closed)])),
     [apartments]
   );
 
@@ -70,6 +79,7 @@ export default function AvailabilityCalendar({
 
   function cellState(aptId: string, date: string) {
     const busy = busyByApt.get(aptId)?.has(date) ?? false;
+    const closed = closedByApt.get(aptId)?.has(date) ?? false;
     const selected =
       selection?.apt === aptId &&
       (selection.end
@@ -79,7 +89,7 @@ export default function AvailabilityCalendar({
     const validCheckout =
       choosingCheckout?.apt === aptId && date > choosingCheckout.start && date <= (maxCheckout ?? "");
     const clickable = Boolean(onSelect) && (!busy || validCheckout);
-    return { busy, selected, isCheckout, validCheckout, clickable };
+    return { busy, closed, selected, isCheckout, validCheckout, clickable };
   }
 
   function handleClick(aptId: string, date: string) {
@@ -109,7 +119,10 @@ export default function AvailabilityCalendar({
             <i className="dot free" /> {isEn ? "Available" : "Libre"}
           </span>
           <span>
-            <i className="dot busy" /> {isEn ? "Booked" : "Ocupado"}
+            <i className="dot busy" /> {isEn ? "Booked" : "Reservado"}
+          </span>
+          <span>
+            <i className="dot closed" /> {isEn ? "Closed" : "Cerrado"}
           </span>
           {onSelect ? (
             <span>
@@ -168,14 +181,21 @@ export default function AvailabilityCalendar({
                   const classes = [
                     "cal-cell",
                     state.busy ? "busy" : "free",
+                    state.closed ? "closed" : "",
                     state.selected ? "picked" : "",
                     state.isCheckout ? "checkout" : "",
                     state.validCheckout ? "can-checkout" : ""
                   ]
                     .filter(Boolean)
                     .join(" ");
-                  const label = `${isEn ? apt.nameEn : apt.name}, ${date}: ${
-                    state.busy ? (isEn ? "booked" : "ocupado") : isEn ? "available" : "libre"
+                  const price = state.busy ? null : nightlyPrice(prices, apt.id, date);
+                  const status = state.closed
+                    ? isEn ? "closed" : "cerrado"
+                    : state.busy
+                      ? isEn ? "booked" : "reservado"
+                      : isEn ? "available" : "libre";
+                  const label = `${isEn ? apt.nameEn : apt.name}, ${date}: ${status}${
+                    price ? `, ${price} €` : ""
                   }`;
                   return (
                     <td key={date} className={classes}>
@@ -186,9 +206,13 @@ export default function AvailabilityCalendar({
                           onClick={() => handleClick(apt.id, date)}
                           aria-label={label}
                           aria-pressed={state.selected}
-                        />
+                        >
+                          {price ? <span className="cal-price">{price}</span> : null}
+                        </button>
                       ) : (
-                        <span aria-label={label} />
+                        <span aria-label={label}>
+                          {price ? <span className="cal-price">{price}</span> : null}
+                        </span>
                       )}
                     </td>
                   );

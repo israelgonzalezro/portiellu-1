@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../globals.css";
 import DevBadge from "../../components/DevBadge";
+import { fontClasses } from "../../lib/fonts";
 import { site } from "../../lib/site";
 import { languageAlternates, ogImage } from "../../lib/seo";
 
@@ -38,7 +39,7 @@ export default function EnglishRootLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={fontClasses}>
       <body>
         {children}
         <DevBadge />

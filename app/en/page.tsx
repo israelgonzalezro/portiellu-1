@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import ReservaForm from "../../components/ReservaForm";
 import LightboxGallery from "../../components/LightboxGallery";
+import SiteFooter from "../../components/SiteFooter";
+import { site } from "../../lib/site";
 
 const img = (name: string) => `/images/optimized/${name}.webp`;
 
@@ -37,8 +39,8 @@ const spaceGalleries = [
 
 const amenities = [
   {
-    title: "Entire place for you",
-    text: "No shared spaces, with full privacy during your stay."
+    title: "Self-contained apartments",
+    text: "Each apartment is yours alone: no shared spaces and full privacy."
   },
   {
     title: "Easy access",
@@ -51,6 +53,30 @@ const amenities = [
   {
     title: "Great base for routes",
     text: "Well located for Covadonga, Cangas and nearby villages."
+  }
+];
+
+const apartments = [
+  {
+    title: "2 two-bedroom apartments",
+    text: "For 3 to 5 guests. Living room with TV, equipped kitchen and one bathroom."
+  },
+  {
+    title: "1 apartment for 2 guests",
+    text: "Ideal for couples. Availability depends on the season: ask us."
+  }
+];
+
+const practicalInfo = [
+  { label: "Check-in", value: `From ${site.checkIn}` },
+  { label: "Check-out", value: `Until ${site.checkOut}` },
+  {
+    label: "Included",
+    value: "Bed linen, towels, wifi and free parking"
+  },
+  {
+    label: "Location",
+    value: `${site.locality}, 3 km from Cangas de Onís and Covadonga`
   }
 ];
 
@@ -81,13 +107,18 @@ export const metadata: Metadata = {
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "LodgingBusiness",
-  name: "Rural House in Cangas de Onis",
+  name: site.name,
   description:
-    "Rural accommodation in Cangas de Onis, Asturias, with direct booking request form.",
+    "Rural apartments in Cabielles, Cangas de Onis (Asturias), with direct booking request form.",
+  telephone: "+34 616 924 075",
+  email: site.email,
+  checkinTime: site.checkIn,
+  checkoutTime: site.checkOut,
   address: {
     "@type": "PostalAddress",
-    addressLocality: "Cangas de Onis",
-    addressRegion: "Asturias",
+    addressLocality: site.locality,
+    postalCode: site.postalCode,
+    addressRegion: site.region,
     addressCountry: "ES"
   },
   areaServed: "Asturias",
@@ -149,16 +180,18 @@ export default function EnglishHomePage() {
         </div>
         <ul className="hero-metrics">
           <li>
-            <strong>4 areas</strong>
-            <span>Clearly organized indoor and outdoor spaces</span>
+            <strong>3 apartments</strong>
+            <span>For 2 to 5 guests each</span>
           </li>
           <li>
-            <strong>Natural surroundings</strong>
-            <span>Mountains, routes and nearby villages</span>
+            <strong>3 km from Cangas</strong>
+            <span>And from the Covadonga sanctuary</span>
           </li>
           <li>
             <strong>Direct booking</strong>
-            <span>Simple request through the form</span>
+            <span>
+              Form or phone <a href={site.phoneHref}>+34 {site.phone}</a>
+            </span>
           </li>
         </ul>
       </section>
@@ -179,6 +212,26 @@ export default function EnglishHomePage() {
               <p>{item.text}</p>
             </article>
           ))}
+        </div>
+        <div className="facts">
+          <div className="facts-col">
+            <h3>The apartments</h3>
+            {apartments.map((item) => (
+              <div key={item.title} className="fact">
+                <strong>{item.title}</strong>
+                <span>{item.text}</span>
+              </div>
+            ))}
+          </div>
+          <div className="facts-col">
+            <h3>Practical information</h3>
+            {practicalInfo.map((item) => (
+              <div key={item.label} className="fact">
+                <strong>{item.label}</strong>
+                <span>{item.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -227,6 +280,11 @@ export default function EnglishHomePage() {
           <a href="#booking" className="cta cta-inline">
             Go to form
           </a>
+          <p className="callout-contact">
+            Prefer to talk to us? Call{" "}
+            <a href={site.phoneHref}>+34 {site.phone}</a> or email{" "}
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </p>
         </aside>
       </section>
 
@@ -239,6 +297,8 @@ export default function EnglishHomePage() {
         </p>
         <ReservaForm lang="en" />
       </section>
+
+      <SiteFooter lang="en" />
     </main>
   );
 }

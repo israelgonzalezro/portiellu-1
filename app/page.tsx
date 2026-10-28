@@ -1,6 +1,8 @@
 import Image from "next/image";
 import ReservaForm from "../components/ReservaForm";
 import LightboxGallery from "../components/LightboxGallery";
+import SiteFooter from "../components/SiteFooter";
+import { site } from "../lib/site";
 
 const img = (name: string) => `/images/optimized/${name}.webp`;
 
@@ -36,8 +38,8 @@ const spaceGalleries = [
 
 const amenities = [
   {
-    title: "Casa completa para ti",
-    text: "Sin compartir espacios y con privacidad total."
+    title: "Apartamentos independientes",
+    text: "Cada apartamento es solo para ti: sin compartir espacios y con total privacidad."
   },
   {
     title: "Acceso cómodo",
@@ -50,6 +52,30 @@ const amenities = [
   {
     title: "Base para rutas",
     text: "Buena ubicación para Covadonga, Cangas y pueblos cercanos."
+  }
+];
+
+const apartments = [
+  {
+    title: "2 apartamentos de 2 dormitorios",
+    text: "Para 3 a 5 personas. Salón con TV, cocina equipada y un baño."
+  },
+  {
+    title: "1 apartamento para 2 personas",
+    text: "Ideal para parejas. Disponibilidad según temporada: consúltanos."
+  }
+];
+
+const practicalInfo = [
+  { label: "Entrada", value: `A partir de las ${site.checkIn}` },
+  { label: "Salida", value: `Hasta las ${site.checkOut}` },
+  {
+    label: "Incluido",
+    value: "Ropa de cama, toallas, wifi y aparcamiento gratuito"
+  },
+  {
+    label: "Ubicación",
+    value: `${site.locality}, a 3 km de Cangas de Onís y de Covadonga`
   }
 ];
 
@@ -74,13 +100,18 @@ const planIdeas = [
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "LodgingBusiness",
-  name: "Casa Rural en Cangas de Onís",
+  name: site.name,
   description:
-    "Alojamiento rural en Cangas de Onís, Asturias, con solicitud de reserva directa.",
+    "Apartamentos rurales en Cabielles, Cangas de Onís (Asturias), con solicitud de reserva directa.",
+  telephone: "+34 616 924 075",
+  email: site.email,
+  checkinTime: site.checkIn,
+  checkoutTime: site.checkOut,
   address: {
     "@type": "PostalAddress",
-    addressLocality: "Cangas de Onís",
-    addressRegion: "Asturias",
+    addressLocality: site.locality,
+    postalCode: site.postalCode,
+    addressRegion: site.region,
     addressCountry: "ES"
   },
   areaServed: "Asturias",
@@ -142,16 +173,18 @@ export default function HomePage() {
         </div>
         <ul className="hero-metrics">
           <li>
-            <strong>4 zonas</strong>
-            <span>Interiores y exteriores diferenciados</span>
+            <strong>3 apartamentos</strong>
+            <span>De 2 a 5 personas cada uno</span>
           </li>
           <li>
-            <strong>Entorno natural</strong>
-            <span>Montaña, rutas y pueblos cercanos</span>
+            <strong>A 3 km de Cangas</strong>
+            <span>Y del santuario de Covadonga</span>
           </li>
           <li>
             <strong>Reserva directa</strong>
-            <span>Solicitud simple desde formulario</span>
+            <span>
+              Formulario o teléfono <a href={site.phoneHref}>{site.phone}</a>
+            </span>
           </li>
         </ul>
       </section>
@@ -172,6 +205,26 @@ export default function HomePage() {
               <p>{item.text}</p>
             </article>
           ))}
+        </div>
+        <div className="facts">
+          <div className="facts-col">
+            <h3>Los apartamentos</h3>
+            {apartments.map((item) => (
+              <div key={item.title} className="fact">
+                <strong>{item.title}</strong>
+                <span>{item.text}</span>
+              </div>
+            ))}
+          </div>
+          <div className="facts-col">
+            <h3>Información práctica</h3>
+            {practicalInfo.map((item) => (
+              <div key={item.label} className="fact">
+                <strong>{item.label}</strong>
+                <span>{item.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -220,6 +273,11 @@ export default function HomePage() {
           <a href="#reserva" className="cta cta-inline">
             Ir al formulario
           </a>
+          <p className="callout-contact">
+            ¿Prefieres hablar con nosotros? Llama al{" "}
+            <a href={site.phoneHref}>{site.phone}</a> o escribe a{" "}
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </p>
         </aside>
       </section>
 
@@ -232,6 +290,8 @@ export default function HomePage() {
         </p>
         <ReservaForm lang="es" />
       </section>
+
+      <SiteFooter lang="es" />
     </main>
   );
 }

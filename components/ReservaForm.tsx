@@ -11,6 +11,7 @@ type FormState = {
   huespedes: string;
   mensaje: string;
   website: string;
+  privacidad: boolean;
 };
 
 type ReservaFormProps = {
@@ -25,7 +26,8 @@ const initialState: FormState = {
   fechaSalida: "",
   huespedes: "2",
   mensaje: "",
-  website: ""
+  website: "",
+  privacidad: false
 };
 
 export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
@@ -59,6 +61,8 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
     placeholder: isEn
       ? "Tell us about your trip, estimated arrival time, or any specific needs..."
       : "Cuéntanos si viajas con niños, necesidades especiales, hora aproximada de llegada...",
+    privacyBefore: isEn ? "I have read and accept the " : "He leído y acepto la ",
+    privacyLink: isEn ? "privacy policy" : "política de privacidad",
     sending: isEn ? "Sending..." : "Enviando...",
     send: isEn ? "Send booking request" : "Enviar solicitud de reserva",
     activationError: isEn
@@ -273,6 +277,21 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
           onChange={(e) => updateField("mensaje", e.target.value)}
           placeholder={t.placeholder}
         />
+      </label>
+
+      <label className="check">
+        <input
+          required
+          type="checkbox"
+          checked={form.privacidad}
+          onChange={(e) => updateField("privacidad", e.target.checked)}
+        />
+        <span>
+          {t.privacyBefore}
+          <a href="/privacidad" target="_blank" rel="noopener">
+            {t.privacyLink}
+          </a>
+        </span>
       </label>
 
       <button disabled={loading} type="submit">

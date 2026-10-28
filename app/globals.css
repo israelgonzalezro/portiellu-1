@@ -575,6 +575,129 @@ button:disabled {
   color: #9a2526;
 }
 
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.check input {
+  margin-top: 0.2rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--accent);
+}
+
+.facts {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.8rem;
+}
+
+.facts-col {
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fffdf8;
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+}
+
+.facts-col h3 {
+  font-size: 1.25rem;
+}
+
+.fact strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.fact span {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ink-soft);
+}
+
+.hero-metrics a {
+  color: #fff;
+  font-weight: 700;
+}
+
+.callout-contact a {
+  color: #fff;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.site-footer {
+  margin-top: 3.2rem;
+  padding: 1.4rem 1.25rem 1rem;
+  border-radius: 22px;
+  background: var(--forest);
+  color: #dce7de;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.footer-brand,
+.footer-title {
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.site-footer a {
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.footer-copy {
+  margin-top: 1.2rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.82rem;
+  color: #b9c9bd;
+}
+
+.legal h1 {
+  margin-top: 0.42rem;
+  font-size: clamp(1.8rem, 1.45vw + 1.25rem, 2.6rem);
+}
+
+.legal h2 {
+  margin-top: 1.6rem;
+  font-size: 1.3rem;
+}
+
+.legal p,
+.legal li {
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.legal p {
+  margin-top: 0.6rem;
+}
+
+.legal ul {
+  margin: 0.6rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.topbar a.brand {
+  text-decoration: none;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(10px);

@@ -2957,3 +2957,60 @@ html {
 .ma-day:disabled {
   opacity: 1;
 }
+
+.rating {
+  display: flex !important;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+.rating b {
+  color: var(--ink);
+}
+
+.stars {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.testimonials {
+  margin: 2rem auto 0;
+  max-width: 1080px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.testimonial {
+  margin: 0;
+  padding: 1.4rem;
+  border-radius: 18px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+}
+
+.testimonial blockquote {
+  margin: 0;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.testimonial figcaption {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.testimonial figcaption span {
+  font-weight: 400;
+  color: var(--ink-soft);
+}

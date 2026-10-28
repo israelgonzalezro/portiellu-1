@@ -10,6 +10,7 @@ import SiteHeader from "./SiteHeader";
 import { apartments } from "../lib/apartments";
 import { content, type Lang } from "../lib/content";
 import { photos } from "../lib/photos";
+import { googleRating, testimonials } from "../lib/reviews";
 import { site } from "../lib/site";
 
 export default function HomePage({ lang }: { lang: Lang }) {
@@ -201,6 +202,11 @@ export default function HomePage({ lang }: { lang: Lang }) {
               <span>
                 <strong>{t.reviews.google}</strong>
                 <small>{t.reviews.googleText}</small>
+                <span className="rating">
+                  <Stars value={googleRating.rating} />
+                  <b>{googleRating.rating.toFixed(1).replace(".", isEn ? "." : ",")}</b>
+                  <span>· {t.reviews.count(googleRating.count)}</span>
+                </span>
                 <em>{t.reviews.googleLink} →</em>
               </span>
             </a>
@@ -218,6 +224,20 @@ export default function HomePage({ lang }: { lang: Lang }) {
               </a>
             ) : null}
           </div>
+          {testimonials.length ? (
+            <div className="testimonials">
+              {testimonials.map((review) => (
+                <figure key={review.name + review.text.slice(0, 20)} className="testimonial">
+                  <Stars value={review.stars} />
+                  <blockquote>“{review.text}”</blockquote>
+                  <figcaption>
+                    <BrandIcon name="google" size={16} /> {review.name}
+                    {review.date ? <span> · {review.date}</span> : null}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          ) : null}
           <div className="social-buttons">
             {instagramUrl ? (
               <a className="social-btn instagram" href={instagramUrl} target="_blank" rel="noopener noreferrer">
@@ -281,6 +301,21 @@ export default function HomePage({ lang }: { lang: Lang }) {
         <SiteFooter lang={lang} />
       </div>
     </>
+  );
+}
+
+function Stars({ value }: { value: number }) {
+  return (
+    <span className="stars" aria-label={`${value} / 5`}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <svg key={n} width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="m12 2 3 6.6 7.2.7-5.4 4.8 1.6 7.1L12 17.5l-6.4 3.7 1.6-7.1L1.8 9.3 9 8.6Z"
+            fill={n <= Math.round(value) ? "#f4b400" : "#e3dccd"}
+          />
+        </svg>
+      ))}
+    </span>
   );
 }
 

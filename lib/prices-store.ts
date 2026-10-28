@@ -5,8 +5,18 @@ import { getSetting, saveSetting } from "./store";
 
 const KEY = "precios";
 
+// Si el almacén tarda o falla, la web sigue funcionando sin precios.
 export async function getPriceRules() {
-  return (await getSetting<PriceRules>(KEY)) ?? emptyPriceRules;
+  try {
+    const rules = await Promise.race([
+      getSetting<PriceRules>(KEY),
+      new Promise<null>((_, reject) => setTimeout(() => reject(new Error("timeout")), 4000))
+    ]);
+    return rules ?? emptyPriceRules;
+  } catch (error) {
+    console.error("No se pudieron leer los precios:", error);
+    return emptyPriceRules;
+  }
 }
 
 function cleanPrices(input: unknown) {

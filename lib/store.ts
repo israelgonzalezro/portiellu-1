@@ -73,9 +73,12 @@ function kv(name = "reservas"): KeyValueStore {
   }
 }
 
+// Las claves que empiezan por "_" son ajustes, no reservas.
+const SETTINGS_PREFIX = "_ajuste-";
+
 export async function listBookings() {
   const store = kv();
-  const keys = await store.keys();
+  const keys = (await store.keys()).filter((key) => !key.startsWith("_"));
   const items = await Promise.all(keys.map((key) => store.get(key)));
   return items
     .filter((item): item is string => Boolean(item))
@@ -100,12 +103,12 @@ export function newBookingId() {
   return `${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
 }
 
-// Ajustes sueltos (por ejemplo, los precios) en un almacén aparte.
+// Ajustes sueltos (por ejemplo, los precios) en el mismo almacén, con prefijo propio.
 export async function getSetting<T>(key: string): Promise<T | null> {
-  const raw = await kv("ajustes").get(key);
+  const raw = await kv().get(`${SETTINGS_PREFIX}${key}`);
   return raw ? (JSON.parse(raw) as T) : null;
 }
 
 export async function saveSetting(key: string, value: unknown) {
-  await kv("ajustes").set(key, JSON.stringify(value));
+  await kv().set(`${SETTINGS_PREFIX}${key}`, JSON.stringify(value));
 }

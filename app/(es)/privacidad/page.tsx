@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import SiteFooter from "../../components/SiteFooter";
-import { site } from "../../lib/site";
+import SiteFooter from "../../../components/SiteFooter";
+import { site } from "../../../lib/site";
 
 export const metadata: Metadata = {
-  title: `Política de privacidad | ${site.name}`,
+  title: "Política de privacidad",
+  alternates: { canonical: "/privacidad" },
   robots: { index: false }
 };
 

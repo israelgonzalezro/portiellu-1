@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
 import Image from "next/image";
-import ReservaForm from "../../components/ReservaForm";
-import LightboxGallery from "../../components/LightboxGallery";
-import SiteFooter from "../../components/SiteFooter";
-import { site } from "../../lib/site";
+import ReservaForm from "../../../components/ReservaForm";
+import LightboxGallery from "../../../components/LightboxGallery";
+import SiteFooter from "../../../components/SiteFooter";
+import { site } from "../../../lib/site";
 
 const img = (name: string) => `/images/optimized/${name}.webp`;
 
@@ -98,18 +97,12 @@ const planIdeas = [
   }
 ];
 
-export const metadata: Metadata = {
-  title: "Rural House in Cangas de Onis | Direct Booking Request",
-  description:
-    "Rural accommodation in Cangas de Onis, Asturias. Check availability and send your booking request directly."
-};
-
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "LodgingBusiness",
   name: site.name,
   description:
-    "Rural apartments in Cabielles, Cangas de Onis (Asturias), with direct booking request form.",
+    "Rural apartments in Cabielles, Cangas de Onís (Asturias), with direct booking request form.",
   telephone: "+34 616 924 075",
   email: site.email,
   checkinTime: site.checkIn,
@@ -153,7 +146,7 @@ export default function EnglishHomePage() {
         <figure className="hero-image">
           <Image
             src={heroImage}
-            alt="Exterior view of the rural accommodation in Cangas de Onis"
+            alt="Living room in one of the El Portiellu rural apartments in Cangas de Onís"
             width={1800}
             height={1200}
             sizes="100vw"
@@ -163,8 +156,8 @@ export default function EnglishHomePage() {
         </figure>
         <div className="hero-gradient" />
         <div className="hero-copy">
-          <p className="kicker">Cangas de Onis, Asturias</p>
-          <h1>Charming rural house to truly disconnect</h1>
+          <p className="kicker">El Portiellu · Cabielles, Cangas de Onís</p>
+          <h1>Rural apartments in Cangas de Onís, next to Covadonga and the Picos de Europa</h1>
           <p>
             Peace, nature and a perfect base to explore Eastern Asturias with 2 to
             7-day getaways.

@@ -1,8 +1,8 @@
 import Image from "next/image";
-import ReservaForm from "../components/ReservaForm";
-import LightboxGallery from "../components/LightboxGallery";
-import SiteFooter from "../components/SiteFooter";
-import { site } from "../lib/site";
+import ReservaForm from "../../components/ReservaForm";
+import LightboxGallery from "../../components/LightboxGallery";
+import SiteFooter from "../../components/SiteFooter";
+import { site } from "../../lib/site";
 
 const img = (name: string) => `/images/optimized/${name}.webp`;
 
@@ -146,7 +146,7 @@ export default function HomePage() {
         <figure className="hero-image">
           <Image
             src={heroImage}
-            alt="Vista exterior del alojamiento rural en Cangas de Onís"
+            alt="Salón de uno de los apartamentos rurales El Portiellu en Cangas de Onís"
             width={1800}
             height={1200}
             sizes="100vw"
@@ -156,8 +156,8 @@ export default function HomePage() {
         </figure>
         <div className="hero-gradient" />
         <div className="hero-copy">
-          <p className="kicker">Cangas de Onís, Asturias</p>
-          <h1>Casa rural en Cangas de Onís, junto a Covadonga y los Picos de Europa</h1>
+          <p className="kicker">El Portiellu · Cabielles, Cangas de Onís</p>
+          <h1>Apartamentos rurales en Cangas de Onís, junto a Covadonga y los Picos de Europa</h1>
           <p>
             Tranquilidad, naturaleza y una base perfecta para disfrutar del
             oriente asturiano con escapadas de 2 a 7 días.

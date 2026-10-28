@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import SiteFooter from "../../components/SiteFooter";
-import { site } from "../../lib/site";
+import SiteFooter from "../../../components/SiteFooter";
+import { site } from "../../../lib/site";
 
 export const metadata: Metadata = {
-  title: `Aviso legal | ${site.name}`,
+  title: "Aviso legal",
+  alternates: { canonical: "/aviso-legal" },
   robots: { index: false }
 };
 

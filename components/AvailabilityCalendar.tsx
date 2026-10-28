@@ -37,7 +37,7 @@ export default function AvailabilityCalendar({
   selection,
   onSelect,
   lang = "es",
-  days = 240
+  days = 365
 }: AvailabilityCalendarProps) {
   const isEn = lang === "en";
   const scrollerRef = useRef<HTMLDivElement>(null);

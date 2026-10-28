@@ -105,7 +105,11 @@ export function newBookingId() {
 
 // Ajustes sueltos (por ejemplo, los precios) en el mismo almacén, con prefijo propio.
 export async function getSetting<T>(key: string): Promise<T | null> {
-  const raw = await kv().get(`${SETTINGS_PREFIX}${key}`);
+  const store = kv();
+  const fullKey = `${SETTINGS_PREFIX}${key}`;
+  // En Netlify, leer una clave que no existe puede tardar mucho: comprobamos antes que exista.
+  if (!(await store.keys()).includes(fullKey)) return null;
+  const raw = await store.get(fullKey);
   return raw ? (JSON.parse(raw) as T) : null;
 }
 

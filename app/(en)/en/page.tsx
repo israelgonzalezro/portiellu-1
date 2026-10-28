@@ -57,12 +57,12 @@ const amenities = [
 
 const apartments = [
   {
-    title: "2 two-bedroom apartments",
-    text: "For 3 to 5 guests. Living room with TV, equipped kitchen and one bathroom."
+    title: "El Portiellu and La Caleya",
+    text: "2 bedrooms, for 3 to 5 guests. Living room with TV, equipped kitchen and one bathroom. El Portiellu is on the ground floor."
   },
   {
-    title: "1 apartment for 2 guests",
-    text: "Ideal for couples. Availability depends on the season: ask us."
+    title: "El Horru",
+    text: "1 bedroom for 2 guests, ideal for couples. Availability depends on the season: ask us."
   }
 ];
 

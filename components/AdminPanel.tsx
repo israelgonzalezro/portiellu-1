@@ -29,7 +29,7 @@ export default function AdminPanel() {
   const [availability, setAvailability] = useState<Availability | null>(null);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [block, setBlock] = useState({ apt: "apto-1", start: "", end: "", nota: "" });
+  const [block, setBlock] = useState({ apt: "el-portiellu", start: "", end: "", nota: "" });
   const [origin, setOrigin] = useState("");
 
   const load = useCallback(async () => {

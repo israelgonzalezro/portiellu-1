@@ -11,31 +11,31 @@ export type Apartment = {
 
 export const apartments: Apartment[] = [
   {
-    id: "apto-1",
-    name: "Apartamento 1",
-    nameEn: "Apartment 1",
+    id: "el-portiellu",
+    name: "El Portiellu",
+    nameEn: "El Portiellu",
+    capacity: 5,
+    summary: "Planta baja · 2 dormitorios · hasta 5 personas",
+    summaryEn: "Ground floor · 2 bedrooms · up to 5 guests",
+    icalEnv: "BOOKING_ICAL_EL_PORTIELLU"
+  },
+  {
+    id: "la-caleya",
+    name: "La Caleya",
+    nameEn: "La Caleya",
     capacity: 5,
     summary: "2 dormitorios · hasta 5 personas",
     summaryEn: "2 bedrooms · up to 5 guests",
-    icalEnv: "BOOKING_ICAL_APTO_1"
+    icalEnv: "BOOKING_ICAL_LA_CALEYA"
   },
   {
-    id: "apto-2",
-    name: "Apartamento 2",
-    nameEn: "Apartment 2",
-    capacity: 5,
-    summary: "2 dormitorios · hasta 5 personas",
-    summaryEn: "2 bedrooms · up to 5 guests",
-    icalEnv: "BOOKING_ICAL_APTO_2"
-  },
-  {
-    id: "apto-3",
-    name: "Apartamento 3",
-    nameEn: "Apartment 3",
+    id: "el-horru",
+    name: "El Horru",
+    nameEn: "El Horru",
     capacity: 2,
-    summary: "Para 2 personas",
-    summaryEn: "For 2 guests",
-    icalEnv: "BOOKING_ICAL_APTO_3"
+    summary: "1 dormitorio · 2 personas",
+    summaryEn: "1 bedroom · 2 guests",
+    icalEnv: "BOOKING_ICAL_EL_HORRU"
   }
 ];
 

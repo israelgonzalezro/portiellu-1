@@ -15,20 +15,20 @@ export const apartments: Apartment[] = [
     id: "el-portiellu",
     name: "El Portiellu",
     nameEn: "El Portiellu",
-    capacity: 5,
+    capacity: 4,
     pets: true,
-    summary: "Planta baja · 2 dormitorios · hasta 5 personas",
-    summaryEn: "Ground floor · 2 bedrooms · up to 5 guests",
+    summary: "Planta baja · 2 dormitorios · hasta 4 personas",
+    summaryEn: "Ground floor · 2 bedrooms · up to 4 guests",
     icalEnv: "BOOKING_ICAL_EL_PORTIELLU"
   },
   {
     id: "la-caleya",
     name: "La Caleya",
     nameEn: "La Caleya",
-    capacity: 5,
+    capacity: 4,
     pets: false,
-    summary: "2 dormitorios · hasta 5 personas",
-    summaryEn: "2 bedrooms · up to 5 guests",
+    summary: "2 dormitorios · hasta 4 personas",
+    summaryEn: "2 bedrooms · up to 4 guests",
     icalEnv: "BOOKING_ICAL_LA_CALEYA"
   },
   {

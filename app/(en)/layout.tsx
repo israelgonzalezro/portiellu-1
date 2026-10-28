@@ -8,7 +8,7 @@ import { languageAlternates, ogImage } from "../../lib/seo";
 export { viewport } from "../../lib/seo";
 
 const description =
-  "El Portiellu rural apartments in Cabielles, 3 km from Cangas de Onís and Covadonga (Asturias, Spain). 3 apartments for 2 to 5 guests. Book direct, no fees.";
+  "El Portiellu rural apartments in Cabielles, 3 km from Cangas de Onís and Covadonga (Asturias, Spain). 3 apartments for 2 to 4 guests. Book direct, no fees.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),

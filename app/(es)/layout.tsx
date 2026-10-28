@@ -8,7 +8,7 @@ import { languageAlternates, ogImage } from "../../lib/seo";
 export { viewport } from "../../lib/seo";
 
 const description =
-  "Apartamentos rurales El Portiellu en Cabielles, a 3 km de Cangas de Onís y Covadonga (Asturias). 3 apartamentos para 2 a 5 personas. Reserva directa sin comisiones.";
+  "Apartamentos rurales El Portiellu en Cabielles, a 3 km de Cangas de Onís y Covadonga (Asturias). 3 apartamentos para 2 a 4 personas. Reserva directa sin comisiones.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),

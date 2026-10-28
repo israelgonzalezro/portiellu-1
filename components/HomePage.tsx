@@ -2,8 +2,9 @@ import Image from "next/image";
 import BookApartmentButton from "./BookApartmentButton";
 import BookingWidget from "./BookingWidget";
 import HeroSearch from "./HeroSearch";
-import Icon from "./Icons";
+import Icon, { BrandIcon } from "./Icons";
 import LightboxGallery from "./LightboxGallery";
+import Preloader from "./Preloader";
 import SiteFooter from "./SiteFooter";
 import SiteHeader from "./SiteHeader";
 import { apartments } from "../lib/apartments";
@@ -11,11 +12,11 @@ import { content, type Lang } from "../lib/content";
 import { photos } from "../lib/photos";
 import { site } from "../lib/site";
 
-const mapsUrl = "https://www.google.com/maps/search/?api=1&query=Cabielles%2C%2033589%20Cangas%20de%20On%C3%ADs%2C%20Asturias";
-
 export default function HomePage({ lang }: { lang: Lang }) {
   const t = content[lang];
   const isEn = lang === "en";
+  const whatsappUrl = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(t.contact.whatsappText)}`;
+  const instagramUrl = site.instagram ? `https://www.instagram.com/${site.instagram}/` : "";
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -45,6 +46,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <Preloader label={t.loading} />
       <SiteHeader lang={lang} />
 
       <main>
@@ -183,6 +185,54 @@ export default function HomePage({ lang }: { lang: Lang }) {
           </div>
         </section>
 
+        {/* Opiniones */}
+        <section className="wrap section-block reviews" id="opiniones">
+          <header className="section-title">
+            <p className="eyebrow">{t.reviews.eyebrow}</p>
+            <h2>{t.reviews.title}</h2>
+            <HorreoRule />
+            <p>{t.reviews.intro}</p>
+          </header>
+          <div className={`review-cards${instagramUrl ? "" : " single"}`}>
+            <a className="review-card" href={site.googleMaps} target="_blank" rel="noopener noreferrer">
+              <span className="review-logo google">
+                <BrandIcon name="google" size={30} />
+              </span>
+              <span>
+                <strong>{t.reviews.google}</strong>
+                <small>{t.reviews.googleText}</small>
+                <em>{t.reviews.googleLink} →</em>
+              </span>
+            </a>
+            {instagramUrl ? (
+              <a className="review-card" href={instagramUrl} target="_blank" rel="noopener noreferrer">
+                <span className="review-logo instagram">
+                  <BrandIcon name="instagram" size={28} />
+                </span>
+                <span>
+                  <strong>{t.reviews.instagram}</strong>
+                  <small>{t.reviews.instagramText}</small>
+                  <b>@{site.instagram}</b>
+                  <em>{t.reviews.instagramLink} →</em>
+                </span>
+              </a>
+            ) : null}
+          </div>
+          <div className="social-buttons">
+            {instagramUrl ? (
+              <a className="social-btn instagram" href={instagramUrl} target="_blank" rel="noopener noreferrer">
+                <BrandIcon name="instagram" size={18} /> {t.reviews.followInstagram}
+              </a>
+            ) : null}
+            <a className="social-btn whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <BrandIcon name="whatsapp" size={18} /> {t.contact.whatsapp}
+            </a>
+            <a className="social-btn google" href={site.googleMaps} target="_blank" rel="noopener noreferrer">
+              <BrandIcon name="google" size={18} /> {t.reviews.writeReview}
+            </a>
+          </div>
+        </section>
+
         {/* Contacto */}
         <section className="contact-band" id="contacto">
           <div className="wrap contact-grid">
@@ -193,6 +243,9 @@ export default function HomePage({ lang }: { lang: Lang }) {
               <div className="contact-actions">
                 <a className="btn btn-gold" href={site.phoneHref}>
                   <Icon name="phone" size={18} /> {t.contact.call} · {site.phone}
+                </a>
+                <a className="btn btn-whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                  <BrandIcon name="whatsapp" size={18} /> {t.contact.whatsapp}
                 </a>
                 <a className="btn btn-outline" href={`mailto:${site.email}`}>
                   <Icon name="mail" size={18} /> {t.contact.write}
@@ -205,7 +258,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
                 <span>
                   <strong>{t.contact.address}</strong>
                   {site.locality}, {site.postalCode} {site.municipality} ({site.region})
-                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
+                  <a href={site.googleMaps} target="_blank" rel="noopener noreferrer">
                     {t.contact.map}
                   </a>
                 </span>

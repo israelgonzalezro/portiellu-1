@@ -50,13 +50,13 @@ const es = {
         tagline: "Planta baja · 2 dormitorios",
         description:
           "El apartamento de la planta baja, cómodo y sin escaleras. Dos dormitorios, salón con TV y cocina equipada: perfecto para familias o grupos de amigos. Es el único que admite mascotas.",
-        features: ["2 dormitorios", "1 baño", "Hasta 5 personas", "Planta baja", "Cocina equipada", "Wifi", "Admite mascotas (+10 €/noche)"]
+        features: ["2 dormitorios", "1 baño", "Hasta 4 personas", "Planta baja", "Cocina equipada", "Wifi", "Admite mascotas (+10 €/noche)"]
       },
       "la-caleya": {
         tagline: "2 dormitorios",
         description:
           "Amplio y luminoso, con dos dormitorios, salón con TV y cocina equipada. Ideal para familias que buscan descansar después de un día de rutas.",
-        features: ["2 dormitorios", "1 baño", "Hasta 5 personas", "Cocina equipada", "Wifi", "Sin mascotas"]
+        features: ["2 dormitorios", "1 baño", "Hasta 4 personas", "Cocina equipada", "Wifi", "Sin mascotas"]
       },
       "el-horru": {
         tagline: "1 dormitorio · Para parejas",
@@ -85,7 +85,7 @@ const es = {
     select: "Reservar este",
     selected: "Seleccionado",
     pickDatesFirst: "Elige fechas de llegada y salida para ver la disponibilidad.",
-    showCalendar: "Ver calendario completo",
+    showCalendar: "Ver calendario por apartamento",
     hideCalendar: "Ocultar calendario",
     yourDetails: "Tus datos",
     loading: "Cargando disponibilidad...",
@@ -121,6 +121,8 @@ const es = {
     title: "¿Hablamos?",
     text: "Llámanos o escríbenos para cualquier duda. Estaremos encantados de ayudarte a preparar tu escapada.",
     call: "Llamar",
+    whatsapp: "WhatsApp",
+    whatsappText: "Hola, me gustaría información sobre los apartamentos El Portiellu.",
     write: "Escribir email",
     address: "Dirección",
     checkIn: `Entrada desde las ${site.checkIn}`,
@@ -130,7 +132,21 @@ const es = {
   },
   gallery: {
     surroundings: "Fachada y entorno"
-  }
+  },
+  reviews: {
+    eyebrow: "Lo que dicen nuestros huéspedes",
+    title: "Opiniones reales",
+    intro: "Nuestros huéspedes comparten su experiencia en Google e Instagram. ¡Gracias por recomendarnos!",
+    google: "Google",
+    googleText: "Opiniones verificadas de huéspedes en Google Maps",
+    googleLink: "Ver opiniones",
+    instagram: "Instagram",
+    instagramText: "Fotos y momentos de nuestros huéspedes",
+    instagramLink: "Ver fotos",
+    followInstagram: "Síguenos en Instagram",
+    writeReview: "Opiniones en Google"
+  },
+  loading: "Cargando"
 };
 
 const en: typeof es = {
@@ -175,13 +191,13 @@ const en: typeof es = {
         tagline: "Ground floor · 2 bedrooms",
         description:
           "Our ground-floor apartment, comfortable and step-free. Two bedrooms, living room with TV and equipped kitchen: perfect for families or groups of friends. It is the only one that welcomes pets.",
-        features: ["2 bedrooms", "1 bathroom", "Up to 5 guests", "Ground floor", "Equipped kitchen", "Wifi", "Pets welcome (+10 €/night)"]
+        features: ["2 bedrooms", "1 bathroom", "Up to 4 guests", "Ground floor", "Equipped kitchen", "Wifi", "Pets welcome (+10 €/night)"]
       },
       "la-caleya": {
         tagline: "2 bedrooms",
         description:
           "Spacious and bright, with two bedrooms, living room with TV and equipped kitchen. Ideal for families looking to rest after a day on the trails.",
-        features: ["2 bedrooms", "1 bathroom", "Up to 5 guests", "Equipped kitchen", "Wifi", "No pets"]
+        features: ["2 bedrooms", "1 bathroom", "Up to 4 guests", "Equipped kitchen", "Wifi", "No pets"]
       },
       "el-horru": {
         tagline: "1 bedroom · For couples",
@@ -210,7 +226,7 @@ const en: typeof es = {
     select: "Book this one",
     selected: "Selected",
     pickDatesFirst: "Choose check-in and check-out dates to see availability.",
-    showCalendar: "View full calendar",
+    showCalendar: "View calendar by apartment",
     hideCalendar: "Hide calendar",
     yourDetails: "Your details",
     loading: "Loading availability...",
@@ -246,6 +262,8 @@ const en: typeof es = {
     title: "Get in touch",
     text: "Call or email us with any questions. We'll be happy to help you plan your stay.",
     call: "Call",
+    whatsapp: "WhatsApp",
+    whatsappText: "Hello, I'd like some information about El Portiellu apartments.",
     write: "Send email",
     address: "Address",
     checkIn: `Check-in from ${site.checkIn}`,
@@ -255,7 +273,21 @@ const en: typeof es = {
   },
   gallery: {
     surroundings: "Facade and surroundings"
-  }
+  },
+  reviews: {
+    eyebrow: "What our guests say",
+    title: "Real reviews",
+    intro: "Our guests share their experience on Google and Instagram. Thank you for recommending us!",
+    google: "Google",
+    googleText: "Verified guest reviews on Google Maps",
+    googleLink: "Read reviews",
+    instagram: "Instagram",
+    instagramText: "Photos and moments from our guests",
+    instagramLink: "View photos",
+    followInstagram: "Follow us on Instagram",
+    writeReview: "Google reviews"
+  },
+  loading: "Loading"
 };
 
 export const content = { es, en };

@@ -14,5 +14,10 @@ export const site = {
   checkOut: "11:00",
   minNights: 2,
   petFee: 10,
-  url: "https://elportiellu.com"
+  url: "https://elportiellu.com",
+  whatsapp: "34616924075",
+  // Usuario de Instagram sin @ (vacío = no se muestra)
+  instagram: "",
+  googleMaps:
+    "https://www.google.com/maps/search/?api=1&query=Apartamentos%20rurales%20El%20Portiellu%2C%20Cabielles%2C%20Cangas%20de%20On%C3%ADs"
 };

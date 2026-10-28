@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import AvailabilityCalendar, { type CalendarSelection } from "./AvailabilityCalendar";
+import MonthAvailability from "./MonthAvailability";
 import DateRangePicker, { type DateRange } from "./DateRangePicker";
 import Icon from "./Icons";
 import { onSearch } from "../lib/booking-events";
@@ -41,6 +41,7 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
   const [guests, setGuests] = useState(2);
   const [selectedApt, setSelectedApt] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarApt, setCalendarApt] = useState("el-portiellu");
   const [form, setForm] = useState<GuestForm>(emptyForm);
   const [sending, setSending] = useState(false);
   const [feedback, setFeedback] = useState<{ text: string; error?: boolean } | null>(null);
@@ -54,6 +55,7 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
         if (detail.start !== undefined || detail.end !== undefined) setRange({ start: detail.start, end: detail.end });
         if (detail.guests) setGuests(detail.guests);
         setSelectedApt(detail.apt ?? null);
+        if (detail.apt) setCalendarApt(detail.apt);
         setFeedback(null);
       }),
     []
@@ -81,20 +83,23 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
 
   function choose(aptId: string) {
     setSelectedApt(aptId);
+    setCalendarApt(aptId);
     setFeedback(null);
     window.setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   }
 
-  function onCalendarSelect(selection: CalendarSelection | null) {
-    if (!selection) {
-      setRange({});
+  // Fechas elegidas en el calendario mensual de un apartamento concreto.
+  function onMonthRange(next: { start?: string; end?: string }) {
+    setRange(next);
+    setFeedback(null);
+    if (next.start && next.end) {
+      setSelectedApt(calendarApt);
+      const apt = data?.apartments.find((item) => item.id === calendarApt);
+      if (apt && guests > apt.capacity) setGuests(apt.capacity);
+      window.setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    } else {
       setSelectedApt(null);
-      return;
     }
-    setRange({ start: selection.start, end: selection.end });
-    setSelectedApt(selection.apt);
-    const apt = data?.apartments.find((item) => item.id === selection.apt);
-    if (apt && guests > apt.capacity) setGuests(apt.capacity);
   }
 
   async function submit(event: React.FormEvent) {
@@ -172,7 +177,7 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
           <span>
             <small>{t.guests}</small>
             <select value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
-              {[1, 2, 3, 4, 5].map((n) => (
+              {[1, 2, 3, 4].map((n) => (
                 <option key={n} value={n}>
                   {n}
                 </option>
@@ -254,14 +259,18 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
         <Icon name="calendar" size={18} /> {showCalendar ? t.hideCalendar : t.showCalendar}
       </button>
       {showCalendar ? (
-        <div className="reserva-form booking-calendar">
-          <AvailabilityCalendar
-            today={data.today}
-            apartments={data.apartments}
-            prices={data.prices}
+        <div className="booking-calendar">
+          <MonthAvailability
+            data={data}
+            aptId={calendarApt}
+            onAptChange={(id) => {
+              setCalendarApt(id);
+              setSelectedApt(null);
+              setRange({});
+            }}
+            range={range}
+            onRange={onMonthRange}
             lang={lang}
-            selection={selectedApt && range.start ? { apt: selectedApt, start: range.start, end: range.end } : null}
-            onSelect={onCalendarSelect}
           />
         </div>
       ) : null}

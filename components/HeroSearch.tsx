@@ -39,7 +39,7 @@ export default function HeroSearch({ lang = "es" }: { lang?: Lang }) {
         <span>
           <small>{t.guests}</small>
           <select value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
-            {[1, 2, 3, 4, 5].map((n) => (
+            {[1, 2, 3, 4].map((n) => (
               <option key={n} value={n}>
                 {n}
               </option>

@@ -12,5 +12,7 @@ export const site = {
   registry: "AT0390",
   checkIn: "16:00",
   checkOut: "11:00",
+  minNights: 2,
+  petFee: 10,
   url: "https://elportiellu.com"
 };

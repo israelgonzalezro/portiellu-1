@@ -3,6 +3,7 @@ export type Apartment = {
   name: string;
   nameEn: string;
   capacity: number;
+  pets: boolean;
   summary: string;
   summaryEn: string;
   // Variable de entorno con el enlace iCal de exportación de Booking
@@ -15,6 +16,7 @@ export const apartments: Apartment[] = [
     name: "El Portiellu",
     nameEn: "El Portiellu",
     capacity: 5,
+    pets: true,
     summary: "Planta baja · 2 dormitorios · hasta 5 personas",
     summaryEn: "Ground floor · 2 bedrooms · up to 5 guests",
     icalEnv: "BOOKING_ICAL_EL_PORTIELLU"
@@ -24,6 +26,7 @@ export const apartments: Apartment[] = [
     name: "La Caleya",
     nameEn: "La Caleya",
     capacity: 5,
+    pets: false,
     summary: "2 dormitorios · hasta 5 personas",
     summaryEn: "2 bedrooms · up to 5 guests",
     icalEnv: "BOOKING_ICAL_LA_CALEYA"
@@ -33,6 +36,7 @@ export const apartments: Apartment[] = [
     name: "El Horru",
     nameEn: "El Horru",
     capacity: 2,
+    pets: false,
     summary: "1 dormitorio · 2 personas",
     summaryEn: "1 bedroom · 2 guests",
     icalEnv: "BOOKING_ICAL_EL_HORRU"

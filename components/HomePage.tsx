@@ -215,6 +215,8 @@ export default function HomePage({ lang }: { lang: Lang }) {
                 <span>
                   <strong>{t.contact.checkIn}</strong>
                   {t.contact.checkOut}
+                  <br />
+                  {t.contact.rules}
                 </span>
               </li>
             </ul>

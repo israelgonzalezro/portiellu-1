@@ -25,6 +25,7 @@ function buildEmail(booking: Booking, apt: Apartment) {
     ["Salida", formatDate(booking.end)],
     ["Noches", String(nights)],
     ["Huéspedes", String(booking.huespedes ?? "-")],
+    ["Mascota", booking.mascota ? `Sí (+${site.petFee} €/noche)` : "No"],
     ["Precio estimado", booking.total ? formatEuros(booking.total) : "Sin precio configurado"],
     ["Nombre", booking.nombre ?? "-"],
     ["Teléfono", booking.telefono ?? "-"],

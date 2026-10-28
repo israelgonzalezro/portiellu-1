@@ -1,21 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import AvailabilityCalendar, { type CalendarApartment, type CalendarSelection } from "./AvailabilityCalendar";
+import { useEffect, useMemo, useRef, useState } from "react";
+import AvailabilityCalendar, { type CalendarSelection } from "./AvailabilityCalendar";
 import DateRangePicker, { type DateRange } from "./DateRangePicker";
 import Icon from "./Icons";
 import { onSearch } from "../lib/booking-events";
 import { content, type Lang } from "../lib/content";
 import { formatDate, nightsBetween } from "../lib/dates";
 import { photos } from "../lib/photos";
-import { formatEuros, stayTotal, type PriceRules } from "../lib/pricing";
-
-type AvailabilityData = {
-  today: string;
-  apartments: CalendarApartment[];
-  prices?: PriceRules;
-};
+import { formatEuros, stayTotal } from "../lib/pricing";
+import { site } from "../lib/site";
+import { fullNights as findFullNights, lowestNightPrice, unavailableNights, useAvailability } from "../lib/use-availability";
 
 type GuestForm = {
   nombre: string;
@@ -24,15 +20,23 @@ type GuestForm = {
   mensaje: string;
   website: string;
   privacidad: boolean;
+  mascota: boolean;
 };
 
-const emptyForm: GuestForm = { nombre: "", email: "", telefono: "", mensaje: "", website: "", privacidad: false };
+const emptyForm: GuestForm = {
+  nombre: "",
+  email: "",
+  telefono: "",
+  mensaje: "",
+  website: "",
+  privacidad: false,
+  mascota: false
+};
 
 export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
   const t = content[lang].booking;
   const isEn = lang === "en";
-  const [data, setData] = useState<AvailabilityData | null>(null);
-  const [loadError, setLoadError] = useState(false);
+  const { data, error: loadError, reload: load } = useAvailability();
   const [range, setRange] = useState<Partial<DateRange>>({});
   const [guests, setGuests] = useState(2);
   const [selectedApt, setSelectedApt] = useState<string | null>(null);
@@ -42,21 +46,6 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
   const [feedback, setFeedback] = useState<{ text: string; error?: boolean } | null>(null);
   const startedAtRef = useRef(Date.now());
   const formRef = useRef<HTMLFormElement>(null);
-
-  const load = useCallback(async () => {
-    try {
-      const response = await fetch("/api/disponibilidad", { cache: "no-store" });
-      if (!response.ok) throw new Error(String(response.status));
-      setData((await response.json()) as AvailabilityData);
-      setLoadError(false);
-    } catch {
-      setLoadError(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   // Búsqueda lanzada desde la portada o desde el botón "Reservar" de un apartamento.
   useEffect(
@@ -70,20 +59,14 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
     []
   );
 
-  const unavailable = useMemo(
-    () => new Map((data?.apartments ?? []).map((apt) => [apt.id, new Set([...apt.busy, ...apt.closed])])),
-    [data]
-  );
+  const unavailable = useMemo(() => unavailableNights(data), [data]);
+  const hasPrices = Boolean(data?.prices && (Object.keys(data.prices.base).length || data.prices.seasons.length));
 
   // Noches sin ningún apartamento libre: se marcan en el selector de fechas.
-  const fullNights = useMemo(() => {
-    if (!data) return undefined;
-    const [first, ...rest] = data.apartments.map((apt) => unavailable.get(apt.id) ?? new Set<string>());
-    return new Set([...(first ?? [])].filter((night) => rest.every((set) => set.has(night))));
-  }, [data, unavailable]);
+  const fullNights = useMemo(() => findFullNights(data, unavailable), [data, unavailable]);
 
-  const hasDates = Boolean(range.start && range.end);
-  const nights = hasDates ? nightsBetween(range.start!, range.end!) : [];
+  const nights = range.start && range.end ? nightsBetween(range.start, range.end) : [];
+  const hasDates = nights.length >= site.minNights;
 
   const results = (data?.apartments ?? []).map((apt) => {
     const free = hasDates && nights.every((night) => !unavailable.get(apt.id)?.has(night));
@@ -93,6 +76,8 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
   });
 
   const selected = results.find((result) => result.apt.id === selectedApt && result.bookable);
+  const petSupplement = selected?.apt.pets && form.mascota ? site.petFee * nights.length : 0;
+  const selectedTotal = selected?.total != null ? selected.total + petSupplement : null;
 
   function choose(aptId: string) {
     setSelectedApt(aptId);
@@ -123,6 +108,7 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           ...form,
+          mascota: selected.apt.pets && form.mascota,
           huespedes: String(guests),
           apartamento: selected.apt.id,
           fechaEntrada: range.start,
@@ -179,6 +165,7 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
           lang={lang}
           labels={{ checkIn: t.checkIn, checkOut: t.checkOut, placeholder: t.datesPlaceholder }}
           fullNights={fullNights}
+          nightPrice={hasPrices ? (date) => lowestNightPrice(data, unavailable, date, guests) : undefined}
         />
         <label className="guests-field">
           <Icon name="users" size={20} />
@@ -227,6 +214,15 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
                   <p>{isEn ? apt.summaryEn : apt.summary}</p>
                   <p className={`result-status${bookable ? " ok" : ""}`}>
                     {!free ? t.unavailable : !fits ? t.tooSmall(apt.capacity) : t.available}
+                  </p>
+                  <p className="result-pets">
+                    {apt.pets
+                      ? isEn
+                        ? `Pets welcome (+${site.petFee} €/night)`
+                        : `Admite mascotas (+${site.petFee} €/noche)`
+                      : isEn
+                        ? "No pets"
+                        : "No se admiten mascotas"}
                   </p>
                 </div>
                 <div className="result-side">
@@ -280,9 +276,14 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
                 {formatDate(range.start!, lang)} → {formatDate(range.end!, lang)} · {t.nights(nights.length)} ·{" "}
                 {guests} {t.guests.toLowerCase()}
               </span>
-              {selected.total ? (
+              {selectedTotal ? (
                 <span className="stay-total">
-                  {t.total}: <strong>{formatEuros(selected.total, lang)}</strong>
+                  {t.total}: <strong>{formatEuros(selectedTotal, lang)}</strong>
+                  {petSupplement ? (
+                    <small>
+                      {isEn ? "Includes pet supplement" : "Incluye suplemento de mascota"}: {formatEuros(petSupplement, lang)}
+                    </small>
+                  ) : null}
                 </span>
               ) : null}
             </div>
@@ -334,6 +335,23 @@ export default function BookingWidget({ lang = "es" }: { lang?: Lang }) {
               }
             />
           </label>
+          {selected.apt.pets ? (
+            <label className="check">
+              <input type="checkbox" checked={form.mascota} onChange={(e) => update("mascota", e.target.checked)} />
+              <span>
+                {isEn
+                  ? `I'm travelling with a pet (+${site.petFee} € per night)`
+                  : `Viajo con mascota (+${site.petFee} € por noche)`}
+              </span>
+            </label>
+          ) : (
+            <p className="booking-note">
+              {isEn
+                ? `Pets are not allowed in ${selected.apt.nameEn}. They are welcome in El Portiellu.`
+                : `En ${selected.apt.name} no se admiten mascotas. Puedes venir con ella a El Portiellu.`}
+            </p>
+          )}
+
           <label className="check">
             <input
               required

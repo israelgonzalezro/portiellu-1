@@ -19,6 +19,7 @@ type AdminBooking = {
   nota?: string;
   createdAt: string;
   total?: number;
+  mascota?: boolean;
   aviso?: "enviado" | "fallido";
   conflict?: boolean;
 };
@@ -219,7 +220,8 @@ export default function AdminPanel() {
                 <strong>{aptName(b.apt)}</strong>
                 <span>
                   {formatDate(b.start)} → {formatDate(b.end)} · {nightsBetween(b.start, b.end).length} noches ·{" "}
-                  {b.huespedes} huéspedes{b.total ? ` · ${formatEuros(b.total)}` : ""}
+                  {b.huespedes} huéspedes{b.mascota ? " · con mascota" : ""}
+                  {b.total ? ` · ${formatEuros(b.total)}` : ""}
                 </span>
               </header>
               {b.aviso === "fallido" ? (

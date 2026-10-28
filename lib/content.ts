@@ -49,20 +49,20 @@ const es = {
       "el-portiellu": {
         tagline: "Planta baja · 2 dormitorios",
         description:
-          "El apartamento de la planta baja, cómodo y sin escaleras. Dos dormitorios, salón con TV y cocina equipada: perfecto para familias o grupos de amigos.",
-        features: ["2 dormitorios", "1 baño", "Hasta 5 personas", "Planta baja", "Cocina equipada", "Wifi"]
+          "El apartamento de la planta baja, cómodo y sin escaleras. Dos dormitorios, salón con TV y cocina equipada: perfecto para familias o grupos de amigos. Es el único que admite mascotas.",
+        features: ["2 dormitorios", "1 baño", "Hasta 5 personas", "Planta baja", "Cocina equipada", "Wifi", "Admite mascotas (+10 €/noche)"]
       },
       "la-caleya": {
         tagline: "2 dormitorios",
         description:
           "Amplio y luminoso, con dos dormitorios, salón con TV y cocina equipada. Ideal para familias que buscan descansar después de un día de rutas.",
-        features: ["2 dormitorios", "1 baño", "Hasta 5 personas", "Cocina equipada", "Wifi"]
+        features: ["2 dormitorios", "1 baño", "Hasta 5 personas", "Cocina equipada", "Wifi", "Sin mascotas"]
       },
       "el-horru": {
         tagline: "1 dormitorio · Para parejas",
         description:
           "Nuestro apartamento más pequeño, pensado para dos. Un refugio tranquilo para una escapada en pareja. Abre según temporada: consulta disponibilidad.",
-        features: ["1 dormitorio", "2 personas", "Ideal parejas", "Wifi", "Según temporada"]
+        features: ["1 dormitorio", "2 personas", "Ideal parejas", "Wifi", "Según temporada", "Sin mascotas"]
       }
     } as Record<string, ApartmentCopy>
   },
@@ -125,6 +125,7 @@ const es = {
     address: "Dirección",
     checkIn: `Entrada desde las ${site.checkIn}`,
     checkOut: `Salida hasta las ${site.checkOut}`,
+    rules: `Estancia mínima de ${site.minNights} noches · Mascotas solo en El Portiellu (+${site.petFee} €/noche)`,
     map: "Ver en Google Maps"
   },
   gallery: {
@@ -173,20 +174,20 @@ const en: typeof es = {
       "el-portiellu": {
         tagline: "Ground floor · 2 bedrooms",
         description:
-          "Our ground-floor apartment, comfortable and step-free. Two bedrooms, living room with TV and equipped kitchen: perfect for families or groups of friends.",
-        features: ["2 bedrooms", "1 bathroom", "Up to 5 guests", "Ground floor", "Equipped kitchen", "Wifi"]
+          "Our ground-floor apartment, comfortable and step-free. Two bedrooms, living room with TV and equipped kitchen: perfect for families or groups of friends. It is the only one that welcomes pets.",
+        features: ["2 bedrooms", "1 bathroom", "Up to 5 guests", "Ground floor", "Equipped kitchen", "Wifi", "Pets welcome (+10 €/night)"]
       },
       "la-caleya": {
         tagline: "2 bedrooms",
         description:
           "Spacious and bright, with two bedrooms, living room with TV and equipped kitchen. Ideal for families looking to rest after a day on the trails.",
-        features: ["2 bedrooms", "1 bathroom", "Up to 5 guests", "Equipped kitchen", "Wifi"]
+        features: ["2 bedrooms", "1 bathroom", "Up to 5 guests", "Equipped kitchen", "Wifi", "No pets"]
       },
       "el-horru": {
         tagline: "1 bedroom · For couples",
         description:
           "Our smallest apartment, made for two. A quiet hideaway for a couple's getaway. Open seasonally: check availability.",
-        features: ["1 bedroom", "2 guests", "Ideal for couples", "Wifi", "Seasonal"]
+        features: ["1 bedroom", "2 guests", "Ideal for couples", "Wifi", "Seasonal", "No pets"]
       }
     }
   },
@@ -249,6 +250,7 @@ const en: typeof es = {
     address: "Address",
     checkIn: `Check-in from ${site.checkIn}`,
     checkOut: `Check-out until ${site.checkOut}`,
+    rules: `Minimum stay ${site.minNights} nights · Pets only in El Portiellu (+${site.petFee} €/night)`,
     map: "Open in Google Maps"
   },
   gallery: {

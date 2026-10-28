@@ -18,6 +18,7 @@ export type Booking = {
   nota?: string;
   lang?: "es" | "en";
   total?: number;
+  mascota?: boolean;
   aviso?: "enviado" | "fallido";
   createdAt: string;
   updatedAt?: string;

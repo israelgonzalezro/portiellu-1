@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { addDays, formatDate, parseISODate, toISODate } from "../lib/dates";
+import { useEffect, useMemo, useState } from "react";
+import { addDays, formatDate, nightsBetween, parseISODate, toISODate } from "../lib/dates";
+import { site } from "../lib/site";
 import Icon from "./Icons";
 
 export type DateRange = { start: string; end: string };
@@ -14,6 +15,8 @@ type DateRangePickerProps = {
   labels: { checkIn: string; checkOut: string; placeholder: string };
   // Noches en las que no queda ningún apartamento libre
   fullNights?: Set<string>;
+  // Precio orientativo de cada noche ("desde")
+  nightPrice?: (date: string) => number | null;
 };
 
 function monthStart(date: string) {
@@ -32,27 +35,21 @@ export default function DateRangePicker({
   onChange,
   lang = "es",
   labels,
-  fullNights
+  fullNights,
+  nightPrice
 }: DateRangePickerProps) {
+  const isEn = lang === "en";
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState(monthStart(value.start ?? today));
-  const rootRef = useRef<HTMLDivElement>(null);
-  const locale = lang === "en" ? "en-GB" : "es-ES";
+  const locale = isEn ? "en-GB" : "es-ES";
 
   useEffect(() => {
     if (!open) return;
-    function onDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
-    }
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
     }
-    document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
+    return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
   const weekdays = useMemo(() => {
@@ -62,12 +59,15 @@ export default function DateRangePicker({
   }, [locale]);
 
   const monthTitle = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" });
+  const choosingEnd = Boolean(value.start && !value.end);
+  const earliestEnd = value.start ? addDays(value.start, site.minNights) : "";
 
   function pick(date: string) {
-    if (!value.start || value.end || date <= value.start) {
+    if (!choosingEnd || date <= value.start!) {
       onChange({ start: date, end: undefined });
       return;
     }
+    if (date < earliestEnd) return;
     onChange({ start: value.start, end: date });
     setOpen(false);
   }
@@ -89,18 +89,21 @@ export default function DateRangePicker({
           {days.map((day, i) => {
             if (!day) return <span key={`e${i}`} />;
             const past = day < today;
+            const tooShort = choosingEnd && day > value.start! && day < earliestEnd;
             const inRange = value.start && value.end && day > value.start && day < value.end;
             const edge = day === value.start || day === value.end;
             const full = fullNights?.has(day);
+            const price = !past && !full ? nightPrice?.(day) : null;
             return (
               <button
                 key={day}
                 type="button"
-                disabled={past}
+                disabled={past || tooShort}
                 className={`drp-day${inRange ? " in-range" : ""}${edge ? " edge" : ""}${full ? " full" : ""}`}
                 onClick={() => pick(day)}
               >
-                {parseISODate(day).getUTCDate()}
+                <span>{parseISODate(day).getUTCDate()}</span>
+                {price ? <small>{price}€</small> : null}
               </button>
             );
           })}
@@ -110,10 +113,18 @@ export default function DateRangePicker({
   }
 
   const canGoBack = month > monthStart(today);
+  const nights = value.start && value.end ? nightsBetween(value.start, value.end).length : 0;
+  const hint = choosingEnd
+    ? isEn
+      ? `Now choose your check-out day (minimum ${site.minNights} nights).`
+      : `Ahora elige el día de salida (mínimo ${site.minNights} noches).`
+    : isEn
+      ? `Choose your check-in day. Minimum stay ${site.minNights} nights.`
+      : `Elige el día de llegada. Estancia mínima de ${site.minNights} noches.`;
 
   return (
-    <div className="drp" ref={rootRef}>
-      <button type="button" className="drp-trigger" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+    <div className="drp">
+      <button type="button" className="drp-trigger" onClick={() => setOpen(true)} aria-expanded={open}>
         <Icon name="calendar" size={20} />
         <span className="drp-field">
           <small>{labels.checkIn}</small>
@@ -127,20 +138,41 @@ export default function DateRangePicker({
       </button>
 
       {open ? (
-        <div className="drp-pop" role="dialog">
-          <div className="drp-nav">
-            <button type="button" disabled={!canGoBack} onClick={() => setMonth(addMonths(month, -1))} aria-label="‹">
-              ‹
-            </button>
-            <button type="button" onClick={() => setMonth(addMonths(month, 1))} aria-label="›">
-              ›
-            </button>
+        <>
+          <div className="drp-backdrop" onClick={() => setOpen(false)} />
+          <div className="drp-pop" role="dialog" aria-modal="true">
+            <div className="drp-head">
+              <p>{hint}</p>
+              <button type="button" className="drp-close" onClick={() => setOpen(false)} aria-label={isEn ? "Close" : "Cerrar"}>
+                ×
+              </button>
+            </div>
+            <div className="drp-body">
+              <div className="drp-nav">
+                <button type="button" disabled={!canGoBack} onClick={() => setMonth(addMonths(month, -1))} aria-label="‹">
+                  ‹
+                </button>
+                <button type="button" onClick={() => setMonth(addMonths(month, 1))} aria-label="›">
+                  ›
+                </button>
+              </div>
+              <div className="drp-months">
+                {renderMonth(month)}
+                {renderMonth(addMonths(month, 1))}
+              </div>
+            </div>
+            <div className="drp-foot">
+              <span>
+                {nightPrice
+                  ? isEn
+                    ? "Prices from, per night"
+                    : "Precios desde, por noche"
+                  : ""}
+              </span>
+              {nights ? <strong>{isEn ? `${nights} nights` : `${nights} noches`}</strong> : null}
+            </div>
           </div>
-          <div className="drp-months">
-            {renderMonth(month)}
-            {renderMonth(addMonths(month, 1))}
-          </div>
-        </div>
+        </>
       ) : null}
     </div>
   );

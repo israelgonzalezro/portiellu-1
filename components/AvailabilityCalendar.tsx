@@ -3,12 +3,14 @@
 import { useMemo, useRef } from "react";
 import { addDays, nightsBetween, parseISODate } from "../lib/dates";
 import { nightlyPrice, type PriceRules } from "../lib/pricing";
+import { site } from "../lib/site";
 
 export type CalendarApartment = {
   id: string;
   name: string;
   nameEn: string;
   capacity: number;
+  pets: boolean;
   summary: string;
   summaryEn: string;
   synced: boolean;
@@ -87,7 +89,9 @@ export default function AvailabilityCalendar({
         : date === selection.start);
     const isCheckout = selection?.apt === aptId && selection.end === date;
     const validCheckout =
-      choosingCheckout?.apt === aptId && date > choosingCheckout.start && date <= (maxCheckout ?? "");
+      choosingCheckout?.apt === aptId &&
+      date >= addDays(choosingCheckout.start, site.minNights) &&
+      date <= (maxCheckout ?? "");
     const clickable = Boolean(onSelect) && (!busy || validCheckout);
     return { busy, closed, selected, isCheckout, validCheckout, clickable };
   }
@@ -227,11 +231,11 @@ export default function AvailabilityCalendar({
         <p className="cal-hint">
           {choosingCheckout
             ? isEn
-              ? "Now tap your check-out day."
-              : "Ahora pulsa el día de salida."
+              ? `Now tap your check-out day (minimum ${site.minNights} nights).`
+              : `Ahora pulsa el día de salida (mínimo ${site.minNights} noches).`
             : isEn
-              ? "Tap your check-in day on the apartment you want, then your check-out day."
-              : "Pulsa el día de entrada en el apartamento que quieras y después el día de salida."}
+              ? `Tap your check-in day on the apartment you want, then your check-out day. Minimum stay ${site.minNights} nights.`
+              : `Pulsa el día de entrada en el apartamento que quieras y después el día de salida. Estancia mínima de ${site.minNights} noches.`}
         </p>
       ) : null}
     </div>

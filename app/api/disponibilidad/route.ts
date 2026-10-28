@@ -20,6 +20,7 @@ export async function GET() {
           name: apt.name,
           nameEn: apt.nameEn,
           capacity: apt.capacity,
+          pets: apt.pets,
           summary: apt.summary,
           summaryEn: apt.summaryEn,
           synced: info?.synced ?? false,

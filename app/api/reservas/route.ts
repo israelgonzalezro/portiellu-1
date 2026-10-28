@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { findApartment } from "../../../lib/apartments";
 import { isRangeFree } from "../../../lib/availability";
-import { isISODate, todayInSpain } from "../../../lib/dates";
+import { isISODate, nightsBetween, todayInSpain } from "../../../lib/dates";
+import { site } from "../../../lib/site";
 import { notifyNewRequest } from "../../../lib/notify";
 import { stayTotal } from "../../../lib/pricing";
 import { getPriceRules } from "../../../lib/prices-store";
@@ -16,6 +17,7 @@ type ReservaPayload = {
   huespedes?: string;
   mensaje?: string;
   apartamento?: string;
+  mascota?: boolean;
   lang?: string;
   website?: string;
   formStartedAt?: number;
@@ -208,6 +210,22 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const nights = nightsBetween(reserva.fechaEntrada, reserva.fechaSalida).length;
+  if (nights < site.minNights) {
+    return NextResponse.json(
+      { message: `La estancia mínima es de ${site.minNights} noches.` },
+      { status: 400 }
+    );
+  }
+
+  const mascota = data.mascota === true;
+  if (mascota && !apt.pets) {
+    return NextResponse.json(
+      { message: `En ${apt.name} no se admiten mascotas. Solo en El Portiellu.` },
+      { status: 400 }
+    );
+  }
+
   if (reserva.fechaEntrada < todayInSpain()) {
     return NextResponse.json({ message: "La fecha de entrada ya ha pasado." }, { status: 400 });
   }
@@ -219,6 +237,7 @@ export async function POST(request: Request) {
     );
   }
 
+  const priceRules = await getPriceRules();
   const booking: Booking = {
     id: newBookingId(),
     apt: apt.id,
@@ -231,7 +250,11 @@ export async function POST(request: Request) {
     huespedes: huespedesNum,
     mensaje: reserva.mensaje || undefined,
     lang: data.lang === "en" ? "en" : "es",
-    total: stayTotal(await getPriceRules(), apt.id, reserva.fechaEntrada, reserva.fechaSalida) ?? undefined,
+    mascota: mascota || undefined,
+    total: (() => {
+      const base = stayTotal(priceRules, apt.id, reserva.fechaEntrada, reserva.fechaSalida);
+      return base === null ? undefined : base + (mascota ? site.petFee * nights : 0);
+    })(),
     createdAt: reserva.createdAt
   };
 

@@ -69,10 +69,12 @@ export default function PrivacidadPage() {
           cuenta nuestra:
         </p>
         <ul>
-          <li>Netlify, Inc.: alojamiento de la web.</li>
           <li>
-            FormSubmit: envío de las solicitudes del formulario a nuestro
-            correo electrónico.
+            Netlify, Inc.: alojamiento de la web y almacenamiento de las
+            solicitudes de reserva.
+          </li>
+          <li>
+            FormSubmit: aviso por correo electrónico de cada nueva solicitud.
           </li>
           <li>Google (Gmail): recepción y gestión del correo electrónico.</li>
         </ul>

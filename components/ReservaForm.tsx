@@ -1,13 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import AvailabilityCalendar, {
+  countNights,
+  type CalendarApartment,
+  type CalendarSelection
+} from "./AvailabilityCalendar";
+import { formatDate } from "../lib/dates";
 
 type FormState = {
   nombre: string;
   email: string;
   telefono: string;
-  fechaEntrada: string;
-  fechaSalida: string;
   huespedes: string;
   mensaje: string;
   website: string;
@@ -18,12 +22,15 @@ type ReservaFormProps = {
   lang?: "es" | "en";
 };
 
+type AvailabilityData = {
+  today: string;
+  apartments: CalendarApartment[];
+};
+
 const initialState: FormState = {
   nombre: "",
   email: "",
   telefono: "",
-  fechaEntrada: "",
-  fechaSalida: "",
   huespedes: "2",
   mensaje: "",
   website: "",
@@ -32,6 +39,9 @@ const initialState: FormState = {
 
 export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
   const [form, setForm] = useState<FormState>(initialState);
+  const [availability, setAvailability] = useState<AvailabilityData | null>(null);
+  const [availabilityError, setAvailabilityError] = useState(false);
+  const [selection, setSelection] = useState<CalendarSelection | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -39,24 +49,31 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
   const isEn = lang === "en";
 
   const t = {
-    invalidDate: isEn
-      ? "Check-out date must be after check-in date."
-      : "La fecha de salida debe ser posterior a la de entrada.",
+    pickDates: isEn
+      ? "Choose an apartment and your dates in the calendar."
+      : "Elige un apartamento y tus fechas en el calendario.",
     genericError: isEn
       ? "Could not send your request."
       : "No se pudo enviar la solicitud.",
     success: isEn
-      ? "Request sent. We will contact you soon."
-      : "Solicitud enviada. Te responderemos para confirmar disponibilidad.",
+      ? "Request sent. We will reply soon to confirm availability."
+      : "Solicitud enviada. Te responderemos para confirmar la reserva.",
     networkError: isEn
       ? "Network error. Please try again in a few minutes."
-      : "Error de red. Intentalo de nuevo en unos minutos.",
+      : "Error de red. Inténtalo de nuevo en unos minutos.",
+    loadingCalendar: isEn ? "Loading availability..." : "Cargando disponibilidad...",
+    calendarError: isEn
+      ? "Availability could not be loaded. Please reload the page or call us on +34 616 924 075."
+      : "No se pudo cargar la disponibilidad. Recarga la página o llámanos al 616 924 075.",
+    yourStay: isEn ? "Your stay" : "Tu estancia",
+    checkIn: isEn ? "Check-in" : "Entrada",
+    checkOut: isEn ? "Check-out" : "Salida",
+    nights: (n: number) => (isEn ? `${n} night${n === 1 ? "" : "s"}` : `${n} noche${n === 1 ? "" : "s"}`),
+    change: isEn ? "Clear" : "Borrar",
     fullName: isEn ? "Full name" : "Nombre completo",
     email: isEn ? "Email address" : "Correo electrónico",
     phone: isEn ? "Phone" : "Teléfono",
     guests: isEn ? "Guests" : "Huéspedes",
-    checkIn: isEn ? "Check-in" : "Entrada",
-    checkOut: isEn ? "Check-out" : "Salida",
     message: isEn ? "Message (optional)" : "Mensaje (opcional)",
     placeholder: isEn
       ? "Tell us about your trip, estimated arrival time, or any specific needs..."
@@ -64,129 +81,88 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
     privacyBefore: isEn ? "I have read and accept the " : "He leído y acepto la ",
     privacyLink: isEn ? "privacy policy" : "política de privacidad",
     sending: isEn ? "Sending..." : "Enviando...",
-    send: isEn ? "Send booking request" : "Enviar solicitud de reserva",
-    activationError: isEn
-      ? "The destination inbox needs form activation first (check the activation email)."
-      : "El correo de destino necesita activación inicial del formulario (revisa el email de activación)."
+    send: isEn ? "Send booking request" : "Enviar solicitud de reserva"
   };
 
-  async function fallbackDirectSubmit() {
-    const directPayload = {
-      name: form.nombre,
-      email: form.email,
-      _subject: "Nueva solicitud de reserva - Casa Rural",
-      message: [
-        `Nombre: ${form.nombre}`,
-        `Email: ${form.email}`,
-        `Teléfono: ${form.telefono}`,
-        `Entrada: ${form.fechaEntrada}`,
-        `Salida: ${form.fechaSalida}`,
-        `Huéspedes: ${form.huespedes}`,
-        `Mensaje: ${form.mensaje || "-"}`,
-        `Fecha envio: ${new Date().toISOString()}`
-      ].join("\n"),
-      _template: "table",
-      _captcha: "false",
-      _replyto: form.email
-    };
+  const loadAvailability = useCallback(async () => {
+    try {
+      const response = await fetch("/api/disponibilidad", { cache: "no-store" });
+      if (!response.ok) throw new Error(String(response.status));
+      setAvailability((await response.json()) as AvailabilityData);
+      setAvailabilityError(false);
+    } catch {
+      setAvailabilityError(true);
+    }
+  }, []);
 
-    const response = await fetch("https://formsubmit.co/ajax/apartamentoselportiellu@gmail.com", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      body: JSON.stringify(directPayload)
-    });
+  useEffect(() => {
+    loadAvailability();
+  }, [loadAvailability]);
 
-    const data = (await response.json().catch(() => ({}))) as {
-      success?: string;
-      message?: string;
-    };
+  const selectedApt = availability?.apartments.find((apt) => apt.id === selection?.apt);
+  const maxGuests = selectedApt?.capacity ?? 5;
+  const nights = countNights(selection);
 
-    return {
-      ok: response.ok && data.success !== "false",
-      message: data.message
-    };
+  function onSelect(next: CalendarSelection | null) {
+    setSelection(next);
+    setFeedback(null);
+    const apt = availability?.apartments.find((item) => item.id === next?.apt);
+    if (apt && Number(form.huespedes) > apt.capacity) {
+      updateField("huespedes", String(apt.capacity));
+    }
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLoading(true);
     setFeedback(null);
     setError(false);
 
-    const entrada = new Date(form.fechaEntrada);
-    const salida = new Date(form.fechaSalida);
-    if (salida <= entrada) {
-      setLoading(false);
+    if (!selection?.end) {
       setError(true);
-      setFeedback(t.invalidDate);
+      setFeedback(t.pickDates);
       return;
     }
 
-    const endpoint = "/api/reservas";
-    const payload = {
-      ...form,
-      formStartedAt: startedAtRef.current
-    };
-
+    setLoading(true);
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/reservas", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          ...form,
+          apartamento: selection.apt,
+          fechaEntrada: selection.start,
+          fechaSalida: selection.end,
+          lang,
+          formStartedAt: startedAtRef.current
+        })
       });
 
-      const data = (await response.json()) as {
+      const data = (await response.json().catch(() => ({}))) as {
         message?: string;
+        unavailable?: boolean;
       };
 
       if (!response.ok) {
-        const fallback = await fallbackDirectSubmit().catch(() => ({
-          ok: false,
-          message: t.genericError
-        }));
-
-        if (fallback.ok) {
-          setFeedback(t.success);
-          setForm(initialState);
-          startedAtRef.current = Date.now();
-          return;
-        }
-
-        const fallbackNeedsActivation = (fallback.message ?? "")
-          .toLowerCase()
-          .includes("activation");
         setError(true);
-        setFeedback(
-          fallbackNeedsActivation
-            ? t.activationError
-            : fallback.message ?? data.message ?? t.genericError
-        );
+        setFeedback(data.message ?? t.genericError);
+        if (data.unavailable) {
+          setSelection(null);
+          loadAvailability();
+        }
         return;
       }
 
       setFeedback(t.success);
       setForm(initialState);
+      setSelection(null);
       startedAtRef.current = Date.now();
     } catch {
-      const fallback = await fallbackDirectSubmit().catch(() => ({
-        ok: false,
-        message: t.networkError
-      }));
-
-      if (fallback.ok) {
-        setFeedback(t.success);
-        setForm(initialState);
-        startedAtRef.current = Date.now();
-      } else {
-        setError(true);
-        setFeedback(fallback.message ?? t.networkError);
-      }
+      setError(true);
+      setFeedback(t.networkError);
     } finally {
       setLoading(false);
     }
@@ -211,11 +187,45 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
         </label>
       </div>
 
+      {availability ? (
+        <AvailabilityCalendar
+          today={availability.today}
+          apartments={availability.apartments}
+          selection={selection}
+          onSelect={onSelect}
+          lang={lang}
+        />
+      ) : (
+        <p className="cal-status">{availabilityError ? t.calendarError : t.loadingCalendar}</p>
+      )}
+
+      {selection && selectedApt ? (
+        <div className="stay-summary" aria-live="polite">
+          <div>
+            <p className="eyebrow">{t.yourStay}</p>
+            <strong>{isEn ? selectedApt.nameEn : selectedApt.name}</strong>
+            <span>
+              {t.checkIn}: {formatDate(selection.start, lang)}
+              {selection.end ? (
+                <>
+                  {" · "}
+                  {t.checkOut}: {formatDate(selection.end, lang)} · {t.nights(nights)}
+                </>
+              ) : null}
+            </span>
+          </div>
+          <button type="button" className="link-button" onClick={() => onSelect(null)}>
+            {t.change}
+          </button>
+        </div>
+      ) : null}
+
       <div className="grid">
         <label>
           {t.fullName}
           <input
             required
+            autoComplete="name"
             value={form.nombre}
             onChange={(e) => updateField("nombre", e.target.value)}
           />
@@ -225,6 +235,7 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
           <input
             required
             type="email"
+            autoComplete="email"
             value={form.email}
             onChange={(e) => updateField("email", e.target.value)}
           />
@@ -234,6 +245,7 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
           <input
             required
             type="tel"
+            autoComplete="tel"
             value={form.telefono}
             onChange={(e) => updateField("telefono", e.target.value)}
           />
@@ -243,28 +255,10 @@ export default function ReservaForm({ lang = "es" }: ReservaFormProps) {
           <input
             required
             min={1}
-            max={12}
+            max={maxGuests}
             type="number"
             value={form.huespedes}
             onChange={(e) => updateField("huespedes", e.target.value)}
-          />
-        </label>
-        <label>
-          {t.checkIn}
-          <input
-            required
-            type="date"
-            value={form.fechaEntrada}
-            onChange={(e) => updateField("fechaEntrada", e.target.value)}
-          />
-        </label>
-        <label>
-          {t.checkOut}
-          <input
-            required
-            type="date"
-            value={form.fechaSalida}
-            onChange={(e) => updateField("fechaSalida", e.target.value)}
           />
         </label>
       </div>

@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import { findApartment } from "../../../lib/apartments";
+import { isRangeFree } from "../../../lib/availability";
+import { isISODate, todayInSpain } from "../../../lib/dates";
+import { newBookingId, saveBooking } from "../../../lib/store";
 
 type ReservaPayload = {
   nombre?: string;
@@ -8,6 +12,8 @@ type ReservaPayload = {
   fechaSalida?: string;
   huespedes?: string;
   mensaje?: string;
+  apartamento?: string;
+  lang?: string;
   website?: string;
   formStartedAt?: number;
 };
@@ -148,6 +154,7 @@ export async function POST(request: Request) {
     fechaSalida: asSafeText(data.fechaSalida),
     huespedes: asSafeText(data.huespedes),
     mensaje: asSafeText(data.mensaje),
+    apartamento: asSafeText(data.apartamento),
     createdAt: new Date().toISOString()
   };
 
@@ -176,20 +183,60 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Contenido demasiado largo." }, { status: 400 });
   }
 
-  const huespedesNum = Number.parseInt(reserva.huespedes, 10);
-  if (!Number.isFinite(huespedesNum) || huespedesNum < 1 || huespedesNum > 12) {
-    return NextResponse.json({ message: "Número de huéspedes no válido." }, { status: 400 });
+  const apt = findApartment(reserva.apartamento);
+  if (!apt) {
+    return NextResponse.json({ message: "Elige un apartamento en el calendario." }, { status: 400 });
   }
 
-  const entrada = new Date(reserva.fechaEntrada);
-  const salida = new Date(reserva.fechaSalida);
-  if (Number.isNaN(entrada.getTime()) || Number.isNaN(salida.getTime())) {
+  const huespedesNum = Number.parseInt(reserva.huespedes, 10);
+  if (!Number.isFinite(huespedesNum) || huespedesNum < 1 || huespedesNum > apt.capacity) {
+    return NextResponse.json(
+      { message: `${apt.name} admite hasta ${apt.capacity} huéspedes.` },
+      { status: 400 }
+    );
+  }
+
+  if (!isISODate(reserva.fechaEntrada) || !isISODate(reserva.fechaSalida)) {
     return NextResponse.json({ message: "Fechas no validas." }, { status: 400 });
   }
-  if (salida <= entrada) {
+  if (reserva.fechaSalida <= reserva.fechaEntrada) {
     return NextResponse.json(
       { message: "La fecha de salida debe ser posterior a la de entrada." },
       { status: 400 }
+    );
+  }
+  if (reserva.fechaEntrada < todayInSpain()) {
+    return NextResponse.json({ message: "La fecha de entrada ya ha pasado." }, { status: 400 });
+  }
+
+  if (!(await isRangeFree(apt.id, reserva.fechaEntrada, reserva.fechaSalida))) {
+    return NextResponse.json(
+      { message: "Esas fechas acaban de ocuparse. Elige otras en el calendario.", unavailable: true },
+      { status: 409 }
+    );
+  }
+
+  const bookingId = newBookingId();
+  try {
+    await saveBooking({
+      id: bookingId,
+      apt: apt.id,
+      start: reserva.fechaEntrada,
+      end: reserva.fechaSalida,
+      status: "pendiente",
+      nombre: reserva.nombre,
+      email: reserva.email,
+      telefono: reserva.telefono,
+      huespedes: huespedesNum,
+      mensaje: reserva.mensaje || undefined,
+      lang: data.lang === "en" ? "en" : "es",
+      createdAt: reserva.createdAt
+    });
+  } catch (error) {
+    console.error("Error guardando la solicitud:", error);
+    return NextResponse.json(
+      { message: "No se pudo guardar la solicitud. Intenta de nuevo." },
+      { status: 500 }
     );
   }
 
@@ -200,10 +247,11 @@ export async function POST(request: Request) {
   const requestReferer = request.headers.get("referer") ?? requestOrigin;
 
   const payload = {
-    name: "Web Casa Rural",
-    email: "reservas@casa-rural.local",
-    _subject: "Nueva solicitud de reserva - Casa Rural",
+    name: "Web El Portiellu",
+    email: "reservas@elportiellu.com",
+    _subject: `Nueva solicitud: ${apt.name} del ${reserva.fechaEntrada} al ${reserva.fechaSalida}`,
     message: [
+      `Apartamento: ${apt.name}`,
       `Nombre: ${reserva.nombre}`,
       `Email: ${reserva.email}`,
       `Teléfono: ${reserva.telefono}`,
@@ -212,7 +260,9 @@ export async function POST(request: Request) {
       `Huéspedes: ${huespedesNum}`,
       `Mensaje: ${reserva.mensaje || "-"}`,
       `Fecha envio: ${reserva.createdAt}`,
-      `IP: ${ip}`
+      `IP: ${ip}`,
+      "",
+      `Confirmar o rechazar: ${requestOrigin}/admin`
     ].join("\n"),
     _captcha: "false",
     _template: "table",
@@ -244,19 +294,13 @@ export async function POST(request: Request) {
       console.error("Error enviando solicitud por relay:", {
         status: relayResponse.status,
         statusText: relayResponse.statusText,
-        bodyPreview: responseText.slice(0, 240)
+        bodyPreview: responseText.slice(0, 240),
+        bookingId
       });
-      return NextResponse.json(
-        { message: "No se pudo enviar la solicitud. Intenta de nuevo." },
-        { status: 502 }
-      );
     }
   } catch (error) {
-    console.error("Error de red enviando solicitud:", error);
-    return NextResponse.json(
-      { message: "No se pudo enviar la solicitud. Intenta de nuevo." },
-      { status: 502 }
-    );
+    // La solicitud ya está guardada y aparece en /admin aunque falle el aviso por email.
+    console.error("Error de red enviando aviso por email:", error, { bookingId });
   }
 
   return NextResponse.json({

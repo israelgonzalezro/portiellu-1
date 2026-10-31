@@ -227,13 +227,15 @@ export default function HomePage({ lang }: { lang: Lang }) {
           {testimonials.length ? (
             <div className="testimonials">
               {testimonials.map((review) => (
-                <figure key={review.name + review.text.slice(0, 20)} className="testimonial">
+                <figure key={review.name} className="testimonial">
                   <Stars value={review.stars} />
-                  <blockquote>“{review.text}”</blockquote>
+                  {review.text ? <blockquote>“{review.text}”</blockquote> : null}
                   <figcaption>
                     <BrandIcon name="google" size={16} /> {review.name}
-                    {review.date ? <span> · {review.date}</span> : null}
                   </figcaption>
+                  <a href={review.url} target="_blank" rel="noopener noreferrer">
+                    {t.reviews.readReview} →
+                  </a>
                 </figure>
               ))}
             </div>

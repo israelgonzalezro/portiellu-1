@@ -18,6 +18,5 @@ export const site = {
   whatsapp: "34616924075",
   // Usuario de Instagram sin @ (vacío = no se muestra)
   instagram: "apartamentoselportiellu",
-  googleMaps:
-    "https://www.google.com/maps/place/Apartamentos+rurales+El+portiellu/@43.3405534,-5.0952235,17z/data=!4m6!3m5!1s0xd36218001144981:0x8d31126bda22fc3d!8m2!3d43.3405534!4d-5.0952235"
+  googleMaps: "https://www.google.com/maps?cid=10173933287637187645"
 };

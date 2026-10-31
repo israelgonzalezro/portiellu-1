@@ -3014,3 +3014,18 @@ html {
   font-weight: 400;
   color: var(--ink-soft);
 }
+
+.testimonial a {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.testimonials {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .testimonials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

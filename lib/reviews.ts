@@ -7,12 +7,17 @@ export const googleRating = {
 
 export type Testimonial = {
   name: string;
-  text: string;
   stars: number;
-  date?: string;
-  lang?: "es" | "en";
+  // Enlace a la reseña original en Google
+  url: string;
+  // Texto opcional: se muestra entre comillas si se rellena
+  text?: string;
 };
 
-// Reseñas destacadas que se muestran en la web. Copiadas de Google con el nombre que
-// aparece allí. Si está vacío, la sección solo muestra la nota y los enlaces.
-export const testimonials: Testimonial[] = [];
+// Reseñas destacadas. Si está vacío, la sección solo muestra la nota y los enlaces.
+export const testimonials: Testimonial[] = [
+  { name: "Francisco R.", stars: 5, url: "https://maps.app.goo.gl/Nshy4MMsMJU8ch7X9" },
+  { name: "Renaud M.", stars: 5, url: "https://maps.app.goo.gl/bB484Ju6xy4Qrop76" },
+  { name: "Andy M.", stars: 5, url: "https://maps.app.goo.gl/5AbWjYVG5mcarekt9" },
+  { name: "Susana S.", stars: 4, url: "https://maps.app.goo.gl/kAoJN6KVxAJLJ2MQ7" }
+];

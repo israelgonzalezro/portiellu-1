@@ -145,7 +145,8 @@ const es = {
     instagramLink: "Ver fotos",
     followInstagram: "Síguenos en Instagram",
     writeReview: "Opiniones en Google",
-    count: (n: number) => `${n} opiniones`
+    count: (n: number) => `${n} opiniones`,
+    readReview: "Leer su reseña"
   },
   loading: "Cargando"
 };
@@ -287,7 +288,8 @@ const en: typeof es = {
     instagramLink: "View photos",
     followInstagram: "Follow us on Instagram",
     writeReview: "Google reviews",
-    count: (n: number) => `${n} reviews`
+    count: (n: number) => `${n} reviews`,
+    readReview: "Read their review"
   },
   loading: "Loading"
 };

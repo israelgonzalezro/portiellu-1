@@ -1,1 +1,28 @@
-{}
+{
+  "el-portiellu": [
+    "/images/el-portiellu/01.webp",
+    "/images/el-portiellu/02.webp",
+    "/images/el-portiellu/03.webp",
+    "/images/el-portiellu/04.webp",
+    "/images/el-portiellu/05.webp",
+    "/images/el-portiellu/06.webp",
+    "/images/el-portiellu/07.webp",
+    "/images/el-portiellu/08.webp",
+    "/images/el-portiellu/09.webp",
+    "/images/el-portiellu/10.webp",
+    "/images/el-portiellu/11.webp",
+    "/images/el-portiellu/12.webp"
+  ],
+  "la-caleya": [
+    "/images/la-caleya/01.webp",
+    "/images/la-caleya/02.webp",
+    "/images/la-caleya/03.webp",
+    "/images/la-caleya/04.webp",
+    "/images/la-caleya/05.webp",
+    "/images/la-caleya/06.webp",
+    "/images/la-caleya/07.webp",
+    "/images/la-caleya/08.webp",
+    "/images/la-caleya/09.webp",
+    "/images/la-caleya/10.webp"
+  ]
+}

@@ -98,13 +98,16 @@ const es = {
     eyebrow: "El entorno",
     title: "Qué hacer cerca",
     intro: "Cabielles es el punto de partida perfecto para descubrir el oriente de Asturias.",
+    moreInfo: "Más información",
+    directions: "Cómo llegar",
+    infoPrefix: "https://www.turismoasturias.es",
     items: [
-      { icon: "church", title: "Santuario de Covadonga", text: "La Santina y la Santa Cueva.", distance: "3 km" },
-      { icon: "bridge", title: "Cangas de Onís", text: "Puente romano, mercado y sidrerías.", distance: "3 km" },
-      { icon: "lake", title: "Lagos de Covadonga", text: "Enol y La Ercina, en pleno Picos.", distance: "35 min" },
-      { icon: "boat", title: "Descenso del Sella", text: "En canoa desde Arriondas.", distance: "20 min" },
-      { icon: "wave", title: "Ribadesella y Llanes", text: "Playas y pueblos marineros.", distance: "25–35 min" },
-      { icon: "hike", title: "Ruta del Cares", text: "La garganta divina, desde Poncebos.", distance: "50 min" }
+      { icon: "church", title: "Santuario de Covadonga", text: "La Santina y la Santa Cueva.", distance: "3 km", info: ["/descubre/cultura/patrimonio-religioso/santuario-de-covadonga"], infoLabels: [], destination: "Santuario de Covadonga, Asturias" },
+      { icon: "bridge", title: "Cangas de Onís", text: "Puente romano, mercado y sidrerías.", distance: "3 km", info: ["/descubre/donde-ir/municipios/cangas-de-onis"], infoLabels: [], destination: "Puente Romano, Cangas de Onís" },
+      { icon: "lake", title: "Lagos de Covadonga", text: "Enol y La Ercina, en pleno Picos.", distance: "35 min", info: ["/senderismo/rutas/familias/ruta-de-los-lagos-de-covadonga"], infoLabels: [], destination: "Lagos de Covadonga" },
+      { icon: "boat", title: "Descenso del Sella", text: "En canoa desde Arriondas.", distance: "20 min", info: ["/descubre/fiestas-de-interes-turistico/fiesta-de-las-piraguas-descenso-internacional-del-sella"], infoLabels: [], destination: "Arriondas, Asturias" },
+      { icon: "wave", title: "Ribadesella y Llanes", text: "Playas y pueblos marineros.", distance: "25–35 min", info: ["/descubre/donde-ir/municipios/ribadesella", "/descubre/donde-ir/municipios/llanes"], infoLabels: ["Ribadesella", "Llanes"], destination: "Ribadesella, Asturias" },
+      { icon: "hike", title: "Ruta del Cares", text: "La garganta divina, desde Poncebos.", distance: "50 min", info: ["/senderismo/rutas/montaneros/ruta-del-cares"], infoLabels: [], destination: "Poncebos, Asturias" }
     ]
   },
   plan: {
@@ -241,13 +244,16 @@ const en: typeof es = {
     eyebrow: "Surroundings",
     title: "Things to do nearby",
     intro: "Cabielles is the perfect base to discover Eastern Asturias.",
+    moreInfo: "More info",
+    directions: "Directions",
+    infoPrefix: "https://www.turismoasturias.es/en",
     items: [
-      { icon: "church", title: "Covadonga Sanctuary", text: "La Santina and the Holy Cave.", distance: "3 km" },
-      { icon: "bridge", title: "Cangas de Onís", text: "Roman bridge, market and cider houses.", distance: "3 km" },
-      { icon: "lake", title: "Covadonga Lakes", text: "Enol and La Ercina, in the heart of the Picos.", distance: "35 min" },
-      { icon: "boat", title: "Sella river descent", text: "By canoe from Arriondas.", distance: "20 min" },
-      { icon: "wave", title: "Ribadesella and Llanes", text: "Beaches and fishing villages.", distance: "25–35 min" },
-      { icon: "hike", title: "Cares Trail", text: "The divine gorge, from Poncebos.", distance: "50 min" }
+      { icon: "church", title: "Covadonga Sanctuary", text: "La Santina and the Holy Cave.", distance: "3 km", info: ["/descubre/cultura/patrimonio-religioso/santuario-de-covadonga"], infoLabels: [], destination: "Santuario de Covadonga, Asturias" },
+      { icon: "bridge", title: "Cangas de Onís", text: "Roman bridge, market and cider houses.", distance: "3 km", info: ["/descubre/donde-ir/municipios/cangas-de-onis"], infoLabels: [], destination: "Puente Romano, Cangas de Onís" },
+      { icon: "lake", title: "Covadonga Lakes", text: "Enol and La Ercina, in the heart of the Picos.", distance: "35 min", info: ["/senderismo/rutas/familias/ruta-de-los-lagos-de-covadonga"], infoLabels: [], destination: "Lagos de Covadonga" },
+      { icon: "boat", title: "Sella river descent", text: "By canoe from Arriondas.", distance: "20 min", info: ["/descubre/fiestas-de-interes-turistico/fiesta-de-las-piraguas-descenso-internacional-del-sella"], infoLabels: [], destination: "Arriondas, Asturias" },
+      { icon: "wave", title: "Ribadesella and Llanes", text: "Beaches and fishing villages.", distance: "25–35 min", info: ["/descubre/donde-ir/municipios/ribadesella", "/descubre/donde-ir/municipios/llanes"], infoLabels: ["Ribadesella", "Llanes"], destination: "Ribadesella, Asturias" },
+      { icon: "hike", title: "Cares Trail", text: "The divine gorge, from Poncebos.", distance: "50 min", info: ["/senderismo/rutas/montaneros/ruta-del-cares"], infoLabels: [], destination: "Poncebos, Asturias" }
     ]
   },
   plan: {

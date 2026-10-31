@@ -160,6 +160,20 @@ export default function HomePage({ lang }: { lang: Lang }) {
                 <div>
                   <h3>{place.title}</h3>
                   <p>{place.text}</p>
+                  <p className="place-links">
+                    {place.info.map((path, n) => (
+                      <a key={path} href={`${t.surroundings.infoPrefix}${path}`} target="_blank" rel="noopener noreferrer">
+                        {place.infoLabels[n] ?? t.surroundings.moreInfo} →
+                      </a>
+                    ))}
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&origin=43.3405534,-5.0952235&destination=${encodeURIComponent(place.destination)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {t.surroundings.directions} →
+                    </a>
+                  </p>
                 </div>
                 <span className="place-distance">{place.distance}</span>
               </article>

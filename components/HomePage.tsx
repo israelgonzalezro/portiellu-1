@@ -44,9 +44,20 @@ export default function HomePage({ lang }: { lang: Lang }) {
     }))
   };
 
+  const faqData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: t.faq.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a }
+    }))
+  };
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }} />
       <Preloader label={t.loading} />
       <SiteHeader lang={lang} />
 
@@ -180,6 +191,23 @@ export default function HomePage({ lang }: { lang: Lang }) {
             ))}
           </div>
 
+          <aside className="lakes-notice">
+            <span className="lakes-icon">
+              <Icon name="lake" size={26} />
+            </span>
+            <div>
+              <h3>{t.surroundings.lakesTitle}</h3>
+              <p>{t.surroundings.lakesText}</p>
+              <a
+                href={`${t.surroundings.infoPrefix}/organiza-tu-viaje/como-llegar/acceso-a-lagos`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t.surroundings.lakesLink} →
+              </a>
+            </div>
+          </aside>
+
           <div className="plan">
             <div className="plan-photo">
               <LightboxGallery title={t.gallery.surroundings} images={photos.surroundings} lang={lang} />
@@ -269,6 +297,23 @@ export default function HomePage({ lang }: { lang: Lang }) {
           </div>
         </section>
 
+        {/* Preguntas frecuentes */}
+        <section className="wrap section-block" id="preguntas">
+          <header className="section-title">
+            <p className="eyebrow">{t.faq.eyebrow}</p>
+            <h2>{t.faq.title}</h2>
+            <HorreoRule />
+          </header>
+          <div className="faq-list">
+            {t.faq.items.map((item) => (
+              <details key={item.q} className="faq-item">
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
         {/* Contacto */}
         <section className="contact-band" id="contacto">
           <div className="wrap contact-grid">
@@ -309,6 +354,14 @@ export default function HomePage({ lang }: { lang: Lang }) {
                 </span>
               </li>
             </ul>
+          </div>
+          <div className="wrap">
+            <iframe
+              className="contact-map"
+              title={t.map.title}
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-5.1102,43.3335,-5.0802,43.3475&layer=mapnik&marker=43.3405534,-5.0952235"
+              loading="lazy"
+            />
           </div>
         </section>
       </main>

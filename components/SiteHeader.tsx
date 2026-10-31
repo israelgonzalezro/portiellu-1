@@ -20,6 +20,7 @@ export default function SiteHeader({ lang = "es" }: { lang?: Lang }) {
   const links = [
     { href: "#apartamentos", label: t.apartments },
     { href: "#entorno", label: t.surroundings },
+    { href: "#preguntas", label: t.faq },
     { href: "#contacto", label: t.contact }
   ];
 

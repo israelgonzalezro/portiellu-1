@@ -77,6 +77,11 @@ export default function PrivacidadPage() {
             FormSubmit: aviso por correo electrónico de cada nueva solicitud.
           </li>
           <li>Google (Gmail): recepción y gestión del correo electrónico.</li>
+          <li>Resend: envío de los avisos por correo electrónico.</li>
+          <li>
+            OpenStreetMap: muestra el mapa de la sección de contacto. Al cargarlo,
+            este servicio recibe tu dirección IP.
+          </li>
         </ul>
         <p>
           Algunos de estos proveedores pueden tratar los datos fuera del

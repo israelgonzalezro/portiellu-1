@@ -13,6 +13,7 @@ const es = {
     apartments: "Apartamentos",
     surroundings: "Entorno",
     location: "Cómo llegar",
+    faq: "Preguntas",
     contact: "Contacto",
     book: "Reservar",
     otherLang: "EN",
@@ -101,6 +102,9 @@ const es = {
     moreInfo: "Más información",
     directions: "Cómo llegar",
     infoPrefix: "https://www.turismoasturias.es",
+    lakesTitle: "¿Vas a subir a los Lagos de Covadonga?",
+    lakesText: "En las fechas de más afluencia el acceso en coche está regulado y hay que subir en autobús. Consulta el calendario antes de ir.",
+    lakesLink: "Ver fechas y accesos oficiales",
     items: [
       { icon: "church", title: "Santuario de Covadonga", text: "La Santina y la Santa Cueva.", distance: "3 km", info: ["/descubre/cultura/patrimonio-religioso/santuario-de-covadonga"], infoLabels: [], destination: "Santuario de Covadonga, Asturias" },
       { icon: "bridge", title: "Cangas de Onís", text: "Puente romano, mercado y sidrerías.", distance: "3 km", info: ["/descubre/donde-ir/municipios/cangas-de-onis"], infoLabels: [], destination: "Puente Romano, Cangas de Onís" },
@@ -151,6 +155,24 @@ const es = {
     count: (n: number) => `${n} opiniones`,
     readReview: "Leer su reseña"
   },
+  faq: {
+    eyebrow: "Antes de venir",
+    title: "Preguntas frecuentes",
+    items: [
+      { q: "¿A qué hora puedo entrar y salir?", a: `La entrada es a partir de las ${site.checkIn} y la salida hasta las ${site.checkOut}.` },
+      { q: "¿Hay una estancia mínima?", a: `Sí, la estancia mínima es de ${site.minNights} noches.` },
+      { q: "¿Cuántas personas caben?", a: "El Portiellu y La Caleya tienen 2 dormitorios y admiten hasta 4 personas. El Horru tiene 1 dormitorio y es para 2 personas." },
+      { q: "¿Se admiten mascotas?", a: `Solo en El Portiellu, con un suplemento de ${site.petFee} € por noche. En La Caleya y El Horru no se admiten.` },
+      { q: "¿Hay aparcamiento?", a: "Sí, hay aparcamiento gratuito junto a los apartamentos." },
+      { q: "¿Qué está incluido?", a: "Ropa de cama, toallas y wifi. Todos los apartamentos tienen cocina equipada y salón con TV." },
+      { q: "¿El Horru está abierto todo el año?", a: "No, abre según temporada. Puedes ver sus fechas libres en el calendario de disponibilidad." },
+      { q: "¿Cómo se hace la reserva?", a: "Elige fechas y apartamento y envía la solicitud. Al enviarla no se cobra nada: te respondemos para confirmar la reserva y te indicamos los siguientes pasos." },
+      { q: "¿Y si tengo que cancelar?", a: `Escríbenos o llámanos al ${site.phone} lo antes posible. Te indicamos las condiciones de cancelación al confirmar tu reserva.` }
+    ]
+  },
+  map: {
+    title: "Mapa de la ubicación de El Portiellu en Cabielles"
+  },
   loading: "Cargando"
 };
 
@@ -159,6 +181,7 @@ const en: typeof es = {
     apartments: "Apartments",
     surroundings: "Surroundings",
     location: "Getting here",
+    faq: "FAQ",
     contact: "Contact",
     book: "Book",
     otherLang: "ES",
@@ -247,6 +270,9 @@ const en: typeof es = {
     moreInfo: "More info",
     directions: "Directions",
     infoPrefix: "https://www.turismoasturias.es/en",
+    lakesTitle: "Going up to the Covadonga Lakes?",
+    lakesText: "On the busiest dates car access is restricted and you go up by bus. Check the calendar before you go.",
+    lakesLink: "See official dates and access",
     items: [
       { icon: "church", title: "Covadonga Sanctuary", text: "La Santina and the Holy Cave.", distance: "3 km", info: ["/descubre/cultura/patrimonio-religioso/santuario-de-covadonga"], infoLabels: [], destination: "Santuario de Covadonga, Asturias" },
       { icon: "bridge", title: "Cangas de Onís", text: "Roman bridge, market and cider houses.", distance: "3 km", info: ["/descubre/donde-ir/municipios/cangas-de-onis"], infoLabels: [], destination: "Puente Romano, Cangas de Onís" },
@@ -296,6 +322,24 @@ const en: typeof es = {
     writeReview: "Google reviews",
     count: (n: number) => `${n} reviews`,
     readReview: "Read their review"
+  },
+  faq: {
+    eyebrow: "Before you come",
+    title: "Frequently asked questions",
+    items: [
+      { q: "What are the check-in and check-out times?", a: `Check-in is from ${site.checkIn} and check-out is until ${site.checkOut}.` },
+      { q: "Is there a minimum stay?", a: `Yes, the minimum stay is ${site.minNights} nights.` },
+      { q: "How many guests can stay?", a: "El Portiellu and La Caleya have 2 bedrooms and sleep up to 4 guests. El Horru has 1 bedroom and is for 2 guests." },
+      { q: "Are pets allowed?", a: `Only in El Portiellu, with a supplement of ${site.petFee} € per night. Pets are not allowed in La Caleya or El Horru.` },
+      { q: "Is there parking?", a: "Yes, there is free parking next to the apartments." },
+      { q: "What is included?", a: "Bed linen, towels and wifi. Every apartment has an equipped kitchen and a living room with TV." },
+      { q: "Is El Horru open all year?", a: "No, it opens seasonally. You can see its free dates in the availability calendar." },
+      { q: "How do I book?", a: "Choose your dates and apartment and send your request. Nothing is charged at that point: we reply to confirm your booking and explain the next steps." },
+      { q: "What if I need to cancel?", a: `Email or call us on +34 ${site.phone} as soon as possible. We explain the cancellation terms when we confirm your booking.` }
+    ]
+  },
+  map: {
+    title: "Map showing El Portiellu in Cabielles"
   },
   loading: "Loading"
 };
